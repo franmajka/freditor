@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="box_wrapper">
+  <div class="box_input">
+    <div class="box_upload"></div>
+    <input type="{{ widget.type }}" name="{{ widget.name }}" id='box_file' accept="image/*">
+    <label for="box_file" class="box_dragndrop"><b>Виберіть зображення</b> чи перетягніть його сюди.</label>
+    <input type="submit" value="{% trans 'Save' %}" class="box_submit" name="_save">
+    <input type="submit" value="{% trans 'Save and add another' %}" class='box_submit' name="_addanother">
+  </div>
+  <div class="preview"><img></div>
+</div>
+</div>

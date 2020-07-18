@@ -1,0 +1,16 @@
+{% load static %}
+
+<div class="img_wrapper">  
+  {% if isImage %}
+    <img src="{{img.image.url}}" class='img'>
+    <div class="controls">
+      <div class="copy_image" data-copy='[img={{img.pk}}]'>Скопіювати у буфер обміну</div>
+      <div class="delete_image" data-pk='{{img.pk}}'>Видалити зображення</div>
+    </div>
+  {% else %}
+    <img src="{% static 'img/default_image.png' %}" class='img'>
+    <div class="controls">
+      <div class="delete_image" data-pk='{{img.pk}}'>Видалити шлях</div>
+    </div>
+  {% endif %}
+</div>

@@ -1,0 +1,35 @@
+<div class="freditor">
+	{% if widget.attrs.allowed_btns %}
+		<div class="controls_btns">
+			<div class="buttons">
+				{% for name, title in widget.attrs.allowed_btns.items %}
+					{% if name == 'file' %}
+						<input type="file" id='load_file' data-url='{% url "admin:add_file" %}'>
+						<label for='load_file' class="btn {{name}}" data-title='{{title}}' tabindex="0"></label>
+					{% else %}
+						<div class="btn {{name}}" data-title='{{title}}' tabindex="0"></div>
+					{% endif %}
+				{% endfor %}
+			</div>
+			{% if widget.attrs.allowed_btns.link %}
+				<div class='add_link hidden'>
+					<input type="text" placeholder="Введіть адресу веб-сторінки..." autocomplete="off" class="link_value">
+					<button class="submit_link">ОК</button>
+				</div>
+			{% endif %}
+			{% if widget.attrs.allowed_btns.image %}
+				<div class="add_image hidden">
+					<input type="text" placeholder="Введіть адресу зображення..." autocomplete="off" class="link_value">
+					<button class="submit_link">ОК</button>
+					<div class="load_image">
+						<input type="file" id='image_load' accept="image/*" data-url='{% url "admin:add_image" %}'>
+						<label for="image_load">Завантажити зображення</label>
+					</div>
+					<button class="get_gallery" data-name='{{ widget.name }}' data-url-get='{% url "admin:get_images" %}' data-url-delete='{% url "admin:delete_image"%}'>Вибрати з галереї</button>
+				</div>
+			{% endif %}
+		</div>
+	{% endif %}
+	<textarea name="{{ widget.name }}" {% for name, value in widget.attrs.items %}{% if value is not False and name != 'allowed_btns' %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endfor %}>{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+	<div class="message"></div>
+</div>
