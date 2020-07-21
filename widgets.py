@@ -9,12 +9,17 @@ class FrEditorWidget(forms.Widget):
   class Media:
     css = {
       'all': (
-          "freditor/css/freditor.css", 
-          'freditor/css/gallery.css', 
+          "freditor/css/freditor.css",
+          'freditor/css/gallery.css',
           'css/preloader.css'
       )
     }
-    js = ('freditor/js/resize_gallery.js', 'freditor/js/delete_image.js', "freditor/js/freditor.js",)
+    js = (
+      'freditor/js/messages.js',
+      'freditor/js/resize_gallery.js',
+      'freditor/js/delete_image.js',
+      'freditor/js/freditor.js',
+    )
 
 
   def __init__(self, attrs=None):
