@@ -161,6 +161,11 @@ window.addEventListener('load', () => {
               textarea.value = textarea.value.slice(0, textarea.selectionStart) + this.dataset.image_link +
               textarea.value.slice(textarea.selectionEnd);
 
+              let message = new Message();
+              message.success = true;
+              message.textContent = 'Зображення було додано'
+              Message.append(message)
+
               textarea.focus();
             }).call(e.target);
           }else if(e.target.classList.contains('delete_image')){

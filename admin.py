@@ -30,7 +30,7 @@ class FrEditorAdmin(admin.ModelAdmin):
     form = ModelForm(request.POST, request.FILES, instance=None)
     if not form.is_valid(): return HttpResponse('Форма не валідна')
     for i in self.model._meta.fields:
-      if not i.__class__ == FrEditorField: 
+      if not i.__class__ == FrEditorField:
         context[i.name] = request.POST.get(i.name, '')
         continue
       content = request.POST.get(i.name, '')
@@ -87,7 +87,11 @@ class ImageAdmin(admin.ModelAdmin):
           HttpResponse(json.dumps({'message': 'ValidationError'}))
         else:
           image.save()
-          return HttpResponse(json.dumps({'pk': str(image.pk), 'url': image.image.url, 'message': 'Зображення було завантажено'}))
+          return HttpResponse(json.dumps({
+            'pk': str(image.pk),
+            'url': image.image.url,
+            'message': 'Зображення було завантажено'
+          }))
     return HttpResponse()
 
   @csrf_exempt
@@ -98,9 +102,9 @@ class ImageAdmin(admin.ModelAdmin):
         if default_storage.exists(img.image.path):
           os.remove(img.image.path)
         img.delete()
-        return HttpResponse(json.dumps({'success': True}))
+        return HttpResponse(json.dumps({'success': True, 'message': 'Зображення було видалено'}))
       except self.model.DoesNotExist:
-        return HttpResponse(json.dumps({'success': False,'message': 'Зображення не знайдено'}))
+        return HttpResponse(json.dumps({'success': False, 'message': 'Зображення не знайдено'}))
     return HttpResponse()
 
   @csrf_exempt
@@ -119,11 +123,18 @@ class ImageAdmin(admin.ModelAdmin):
   class Media:
     css = {
       "all": (
-        "freditor/css/gallery.css",
+        'freditor/css/messages.css',
+        'freditor/css/gallery.css',
         'css/preloader.css',
       ),
     }
-    js = ('freditor/js/resize_gallery.js', 'freditor/js/delete_image.js', 'freditor/js/copy_image.js', "freditor/js/gallery.js",)
+    js = (
+      'freditor/js/messages.js',
+      'freditor/js/resize_gallery.js',
+      'freditor/js/delete_image.js',
+      'freditor/js/copy_image.js',
+      'freditor/js/gallery.js',
+    )
 
 
 @admin.register(File)

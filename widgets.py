@@ -9,7 +9,8 @@ class FrEditorWidget(forms.Widget):
   class Media:
     css = {
       'all': (
-          "freditor/css/freditor.css",
+          'freditor/css/messages.css',
+          'freditor/css/freditor.css',
           'freditor/css/gallery.css',
           'css/preloader.css'
       )
