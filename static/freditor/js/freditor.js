@@ -12,7 +12,7 @@ const BTN_VALUES = {
   'subscript': 'sub',
 };
 
-window.onload = () => {
+window.addEventListener('load', () => {
 
   document.querySelectorAll('.freditor').forEach(i => {
     const freditor = i.querySelector('textarea');
@@ -45,9 +45,6 @@ window.onload = () => {
             if(i == this){
               input.focus();
             }
-
-            let message = this.parentElement.parentElement.parentElement.querySelector('.message');
-            if(message){message.parentElement.removeChild(message);}
           }
         };
       };
@@ -62,10 +59,10 @@ window.onload = () => {
         let sS = textarea.selectionStart;
         let sE = textarea.selectionEnd;
         if(sS != sE){
-          textarea.value = value.slice(0, sS) + `[${BTN_VALUES[this.classList[1]]}]` + 
+          textarea.value = value.slice(0, sS) + `[${BTN_VALUES[this.classList[1]]}]` +
           value.slice(sS, sE) + `[/${BTN_VALUES[this.classList[1]]}]` + value.slice(sE);
         }else{
-          textarea.value = value.slice(0, sS) + `[${BTN_VALUES[this.classList[1]]}]` + 
+          textarea.value = value.slice(0, sS) + `[${BTN_VALUES[this.classList[1]]}]` +
           `[/${BTN_VALUES[this.classList[1]]}]` + value.slice(sE);
           textarea.selectionStart = sS + `[${BTN_VALUES[this.classList[1]]}]`.length;
           textarea.selectionEnd = textarea.selectionStart;
@@ -102,10 +99,10 @@ window.onload = () => {
         let sE = textarea.selectionEnd;
         if(this.parentElement.classList[0] == 'add_link'){
           if(sS != sE){
-            textarea.value = value.slice(0, sS) + `[url=${link_url}]` + 
+            textarea.value = value.slice(0, sS) + `[url=${link_url}]` +
             value.slice(sS, sE) + '[/url]' + value.slice(sE);
           }else{
-            textarea.value = value.slice(0, textarea.selectionEnd) + 
+            textarea.value = value.slice(0, textarea.selectionEnd) +
             `[url=${link_url}]${url_str}[/url]` + value.slice(textarea.selectionEnd);
             textarea.selectionStart = sS + `[url=${link_url}]`.length;
             textarea.selectionEnd = sE + `[url=${link_url}]${url_str}`.length;
@@ -161,8 +158,13 @@ window.onload = () => {
             let overlay = this;
             (function(){
               let textarea = document.getElementById(overlay.dataset.id);
-              textarea.value = textarea.value.slice(0, textarea.selectionStart) + this.dataset.image_link + 
+              textarea.value = textarea.value.slice(0, textarea.selectionStart) + this.dataset.image_link +
               textarea.value.slice(textarea.selectionEnd);
+
+              let message = new Message();
+              message.success = true;
+              message.textContent = 'Зображення було додано'
+              Message.append(message)
 
               textarea.focus();
             }).call(e.target);
@@ -179,14 +181,13 @@ window.onload = () => {
 
         xhr.onreadystatechange = function(){
           if(xhr.readyState == 4){
-            let message = createMessage(document.getElementById(overlay.dataset.id).parentElement);
-            message.classList.add('error');
+            let message = new Message();
+            message.success = false;
             if(xhr.status == 200){
               overlay.style.opacity = 1;
               if(xhr.responseText){
                 let response = JSON.parse(xhr.responseText);
                 if(!response[0]){
-                  message.remove();
 
                   for(let pk in response[1]){
                     overlay.querySelector('#gallery').appendChild(createImage(pk, response[1][pk]));
@@ -232,24 +233,29 @@ window.onload = () => {
                       }, 200);
                     }
                   });
+                  Message.delete(message);
                 }else{
                   document.body.removeChild(overlay);
-                  message.appendChild(document.createTextNode(response[1]));
+                  message.textContent = response[1];
+                  Message.append(message);
                 }
               }else{
                 document.body.removeChild(overlay);
-                message.appendChild(document.createTextNode('Щось пішло не так...'));
+                message.textContent = 'Щось пішло не так...';
+                Message.append(message);
               }
             }else{
               document.body.removeChild(overlay);
 
               if(xhr.status === 403){
-                message.appendChild(document.createTextNode('Відмовлено в доступі'));
+                message.textContent = 'Відмовлено в доступі';
               }else if(xhr.status === 0){
-                message.appendChild(document.createTextNode('Немає доступу до інтернету'));
+                message.textContent = 'Немає доступу до інтернету';
               }else{
-                message.appendChild(document.createTextNode('Щось пішло не так...'));
+                message.textContent = 'Щось пішло не так...';
               }
+
+              Message.append(message)
             }
           }
         };
@@ -261,9 +267,10 @@ window.onload = () => {
       }
     });
   });
-  
+
   document.getElementById('load_file').addEventListener('change', function(){
-    let message = createMessage(this.closest('.freditor'));
+    let message = new Message();
+    message.success = false;
 
     const formData = new FormData();
     if(this.files && this.files[0]){
@@ -289,12 +296,12 @@ window.onload = () => {
               if(data.pk){
                 let sS = textarea.selectionStart;
                 let sE = textarea.selectionEnd;
-                
+
                 if(sS != sE){
-                  textarea.value = value.slice(0, sS) + `[file=${data.pk}]` + 
+                  textarea.value = value.slice(0, sS) + `[file=${data.pk}]` +
                   value.slice(sS, sE) + '[/file]' + value.slice(sE);
                 }else{
-                  textarea.value = value.slice(0, textarea.selectionEnd) + 
+                  textarea.value = value.slice(0, textarea.selectionEnd) +
                   `[file=${data.pk}]${data.pk}[/file]` + value.slice(textarea.selectionEnd);
                   textarea.selectionStart = sS + `[file=${data.pk}]`.length;
                   textarea.selectionEnd = sE + `[file=${data.pk}]${data.pk}`.length;
@@ -302,43 +309,40 @@ window.onload = () => {
 
                 textarea.focus();
 
-                message.classList.add('success');
+                message.success = true;
 
-              }else{
-                message.classList.add('error');
               }
-              message.appendChild(document.createTextNode(data.message));
+              message.textContent = data.message;
             }else{
-              message.classList.add('error');
-              message.appendChild(document.createTextNode('Щось пішло не так...'));
+              message.textContent = 'Щось пішло не так...';
             }
             break;
           case 403:
-            message.classList.add('error');
-            message.appendChild(document.createTextNode('Відмовлено в доступі'));
+            message.textContent = 'Відмовлено в доступі';
             break;
           case 0:
-            message.classList.add('error');
-            message.appendChild(document.createTextNode('Немає доступу до інтернету'));
+            message.textContent = 'Немає доступу до інтернету';
             break;
           default:
-            message.classList.add('error');
-            message.appendChild(document.createTextNode('Щось пішло не так...'));
+            message.textContent = 'Щось пішло не так...';
         }
+        Message.append(message);
       }
     };
     xhr.send(formData);
   });
 
   document.getElementById('image_load').addEventListener('change', function(){
-    let message = createMessage(this.closest('.freditor'));
+    let message = new Message();
+    message.success = false;
 
     const formData = new FormData();
     if(this.files && this.files[0] && this.files[0].type.slice(0, 5) == 'image'){
       formData.append('image', this.files[0]);
     }else{
-      message.classList.add('error');
-      message.appendChild(document.createTextNode('Спробуйте завантажити зображення'));
+      message.success = false;
+      message.textContent = 'Спробуйте завантажити зображення';
+      Message.append(message);
       return;
     }
 
@@ -357,38 +361,33 @@ window.onload = () => {
             if(xhr.responseText){
               let data = JSON.parse(xhr.responseText);
               if(data.pk){
-                textarea.value = value.slice(0, textarea.selectionEnd) + 
+                textarea.value = value.slice(0, textarea.selectionEnd) +
                 `[img=${data.pk}]` + value.slice(textarea.selectionEnd);
 
                 textarea.focus();
 
-                message.classList.add('success');
+                message.success = true;
 
                 let overlay = document.getElementById('overlay');
                 if(overlay){
                   overlay.querySelector('#gallery').appendChild(createImage(data.pk, data.url));
                 }
-              }else{
-                message.classList.add('error');
               }
-              message.appendChild(document.createTextNode(data.message));
+              message.textContent = data.message;
             }else{
-              message.classList.add('error');
-              message.appendChild(document.createTextNode('Щось пішло не так...'));
+              message.textContent = 'Щось пішло не так...';
             }
             break;
           case 403:
-            message.classList.add('error');
-            message.appendChild(document.createTextNode('Відмовлено в доступі'));
+            message.textContent = 'Відмовлено в доступі';
             break;
           case 0:
-            message.classList.add('error');
-            message.appendChild(document.createTextNode('Немає доступу до інтернету'));
+            message.textContent = 'Немає доступу до інтернету';
             break;
           default:
-            message.classList.add('error');
-            message.appendChild(document.createTextNode('Щось пішло не так...'));
+            message.textContent = 'Щось пішло не так...';
         }
+        Message.append(message);
       }
     };
     xhr.send(formData);
@@ -405,7 +404,7 @@ window.onload = () => {
     form.target = original_target;
     form.action = original_action;
   })
-};
+});
 
 window.addEventListener('resize', () => {
   let overlay = document.getElementById('overlay');
@@ -421,7 +420,7 @@ function createImage(pk, url){
   img_wrapper.insertAdjacentHTML('afterbegin', `
     <img src='${url}' class='img'>
     <div class='controls'>
-      
+
     </div>
   `);
 
@@ -447,31 +446,6 @@ function createImage(pk, url){
   controls.appendChild(delete_image);
 
   return img_wrapper
-}
-
-function createMessage(freditor){
-  let message = document.createElement('div');
-  message.classList.add('message');
-
-  let hide = document.createElement('button');
-  hide.classList.add('hide');
-  hide.onclick = function(e){
-    if(e){
-      e.preventDefault();
-    }
-
-    this.parentElement.remove();
-  };
-
-  let old_message = freditor.querySelector('.message');
-  if(old_message){
-    freditor.replaceChild(message, old_message);
-  }else{
-    freditor.appendChild(message);
-  }
-
-  message.appendChild(hide);
-  return message;
 }
 
 function textareaAutoResize() {

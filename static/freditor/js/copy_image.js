@@ -1,7 +1,7 @@
 'use strict';
 
 function copyImage(){
-	let original = this.textContent;
+	let message = new Message();
 	let copy_to_clipboard = document.createElement('div');
 	copy_to_clipboard.textContent = this.dataset.copy;
 	this.appendChild(copy_to_clipboard);
@@ -13,13 +13,15 @@ function copyImage(){
 	try{
 		document.execCommand('copy');
 		selection.removeAllRanges();
-		this.textContent = 'Готово!'
-		setTimeout(() => {
-			this.textContent = original;
-		}, 5000)
+
+		message.success = true;
+		message.textContent = 'Тег зображення був скопійований у буфер обміну'
 	}catch(e){
-		console.log(e);
-		this.removeChild(copy_to_clipboard);
+		message.success = false;
+		message.textContent = e.message;
 	}
 
+	copy_to_clipboard.remove()
+
+	Message.append(message);
 }
