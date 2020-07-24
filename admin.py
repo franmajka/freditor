@@ -2,10 +2,9 @@ import os
 import json
 from django import forms
 from django.contrib import admin
-from django.core.files.storage import default_storage
 from django.shortcuts import render
 from django.urls import path
-from django.conf import settings
+from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
@@ -99,8 +98,6 @@ class ImageAdmin(admin.ModelAdmin):
     if request.is_ajax() and request.method == 'POST':
       try:
         img = self.model.objects.get(pk = json.loads(request.body)['pk'])
-        if default_storage.exists(img.image.path):
-          os.remove(img.image.path)
         img.delete()
         return HttpResponse(json.dumps({'success': True, 'message': 'Зображення було видалено'}))
       except self.model.DoesNotExist:
@@ -110,13 +107,20 @@ class ImageAdmin(admin.ModelAdmin):
   @csrf_exempt
   def get_images(self, request):
     if request.is_ajax() and request.method == 'POST':
-      response = [False]
+      response = {}
       try:
-        response.append({str(img.pk):isImage(img) for img in Image.objects.all()})
+        response['success'] = True
+        response['images'] = {}
+        for img in Image.objects.all():
+          is_image = img.image and img.image.url and default_storage.exists(img.image.name)
+          if not is_image:
+            img.delete()
+            continue
+          response['images'][str(img.pk)] = img.get_url()
         return HttpResponse(json.dumps(response))
       except:
-        response[0] = True;
-        response.append(str(sys.exc_info()[0]))
+        response['success'] = False;
+        response['error'] = str(sys.exc_info()[0])
         return HttpResponse(json.dumps(response))
     return HttpResponse()
 
@@ -162,10 +166,3 @@ class FileAdmin(admin.ModelAdmin):
           file.save()
           return HttpResponse(json.dumps({'pk': str(file.pk), 'message': 'Файл було завантажено'}))
     return HttpResponse()
-
-
-def isImage(img):
-  if img.image and default_storage.exists(img.image.path):
-    return img.image.url
-  else:
-    return settings.STATIC_URL + 'img/default_image.png'

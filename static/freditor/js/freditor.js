@@ -187,10 +187,10 @@ window.addEventListener('load', () => {
               overlay.style.opacity = 1;
               if(xhr.responseText){
                 let response = JSON.parse(xhr.responseText);
-                if(!response[0]){
+                if(response.success){
 
-                  for(let pk in response[1]){
-                    overlay.querySelector('#gallery').appendChild(createImage(pk, response[1][pk]));
+                  for(let pk in response.images){
+                    overlay.querySelector('#gallery').appendChild(createImage(pk, response.images[pk]));
                   }
 
                   function createImagePromise(img){
@@ -236,7 +236,7 @@ window.addEventListener('load', () => {
                   Message.delete(message);
                 }else{
                   document.body.removeChild(overlay);
-                  message.textContent = response[1];
+                  message.textContent = response.error;
                   Message.append(message);
                 }
               }else{

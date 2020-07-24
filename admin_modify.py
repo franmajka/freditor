@@ -14,9 +14,10 @@ def freditor_submit_row(context):
 @register.inclusion_tag('freditor/gallery_image.html', takes_context=True)
 def freditor_gallery_image(context):
 	img = context['result']
+	is_image = img.image and img.image.url and default_storage.exists(img.image.name)
+	if not is_image: img.delete()
 	context.update({
-		'isImage': img.image and img.image.url and default_storage.exists(img.image.path),
+		'isImage': is_image,
 		'img': img,
 	})
-	print(context['isImage'])
 	return context
