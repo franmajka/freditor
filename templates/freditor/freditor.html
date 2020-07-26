@@ -5,27 +5,27 @@
 				{% for name, title in widget.attrs.allowed_btns.items %}
 					{% if name == 'file' %}
 						<input type="file" id='load_file' data-url='{% url "admin:add_file" %}'>
-						<label for='load_file' class="btn {{name}}" data-title='{{title}}' tabindex="0"></label>
+						<label for='load_file' class="btn {{name}}" data-title='{{title}}' data-btn='{{name}}' tabindex="0"></label>
 					{% else %}
-						<div class="btn {{name}}" data-title='{{title}}' tabindex="0"></div>
+						<div class="btn {{name}}" data-title='{{title}}' data-btn='{{name}}' tabindex="0"></div>
 					{% endif %}
 				{% endfor %}
 			</div>
 			{% if widget.attrs.allowed_btns.link %}
 				<div class='add_link hidden'>
 					<input type="text" placeholder="Введіть адресу веб-сторінки..." autocomplete="off" class="link_value">
-					<button class="submit_link">ОК</button>
+					<button class="submit_link" data-submit-link='link'>ОК</button>
 				</div>
 			{% endif %}
 			{% if widget.attrs.allowed_btns.image %}
 				<div class="add_image hidden">
 					<input type="text" placeholder="Введіть адресу зображення..." autocomplete="off" class="link_value">
-					<button class="submit_link">ОК</button>
+					<button class="submit_link" data-submit-link='image'>ОК</button>
 					<div class="load_image">
 						<input type="file" id='image_load' accept="image/*" data-url='{% url "admin:add_image" %}'>
 						<label for="image_load">Завантажити зображення</label>
 					</div>
-					<button class="get_gallery" data-name='{{ widget.name }}' data-url-get='{% url "admin:get_images" %}' data-url-delete='{% url "admin:delete_image"%}'>Вибрати з галереї</button>
+					<button class="get_gallery" data-get='gallery' data-name='{{ widget.name }}' data-get-url='{% url "admin:get_images" %}' data-url-delete='{% url "admin:delete_image"%}'>Вибрати з галереї</button>
 				</div>
 			{% endif %}
 		</div>

@@ -1,6 +1,14 @@
 "use strict";
 
-const DEFAULT_IMAGE = '/static/img/default_image.png';
+import Message from './Message';
+import resizeGallery from './resize-gallery';
+import deleteImage from './delete-image'
+
+import '../css/freditor.scss';
+import '../css/preloader.scss';
+const images = require.context('../img', true, /(?<!default_image)\.png$/)
+import defaultImage from "../img/default_image.png";
+
 const BTN_VALUES = {
   'bold':      'b',
   'italic':    'i',
@@ -217,7 +225,7 @@ window.addEventListener('load', () => {
                     let rejected = [];
                     responses.forEach(i => {
                       if(!i.loaded){
-                        i.img.src = DEFAULT_IMAGE;
+                        i.img.src = defaultImage;
                         i.img.parentElement.querySelector('.controls .insert_image').remove();
                         i.img.parentElement.querySelector('.controls .delete_image')
                         .innerText = 'Видалити шлях';
@@ -231,8 +239,8 @@ window.addEventListener('load', () => {
                         i.img.parentElement.remove();
                         console.log(i.img.src);
                         console.log('Картинка отсутствует,');
-                        console.log(DEFAULT_IMAGE);
-                        console.log('DEFAULT_IMAGE указан не верно');
+                        console.log(defaultImage);
+                        console.log('defaultImage указан не верно');
                       }
                     });
                     let gallery = document.getElementById('gallery_wrapper');
@@ -442,7 +450,7 @@ function createImage(pk, url){
   delete_image.classList.add('delete_image');
   delete_image.dataset.pk = pk;
 
-  if(url && url != DEFAULT_IMAGE){
+  if (url && url != defaultImage){
     let insert_image = document.createElement('div');
     insert_image.classList.add('insert_image');
     insert_image.dataset.image_link = `[img=${pk}]`;

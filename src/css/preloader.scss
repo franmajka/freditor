@@ -1,0 +1,75 @@
+$size: 10vw;
+$shadow_color: #556499;
+$outer_color: #53a3e7;
+$inner_color: #794eb1;
+$animation_duration: 3s;
+.preloader{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: $size;
+  height: $size;
+  transform: translate(-50%, -50%);
+  background-color: transparent;
+  &.loaded_hiding{
+  	transition: all .2s;
+  	opacity: 0;
+  }
+  *{
+    background-color: inherit;
+    box-sizing: border-box;
+    border-radius: 50%;
+  }
+  .outer_circle_shadow{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: $size * .06 solid $shadow_color;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    animation: rotate_circle $animation_duration infinite ease-in-out reverse;
+  }
+  .outer_circle{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    border: $size * .06 solid $outer_color;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    animation: rotate_circle $animation_duration infinite ease-in-out;
+  }
+  .inner_circle{
+    width: 50%;
+    height: 50%;
+    z-index: -1;
+    border: $size * .05 solid $inner_color;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    animation: rotate_inner $animation_duration infinite ease-in-out reverse;
+  }
+}
+
+@keyframes rotate_circle{
+  100%{
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotate_inner{
+  0%{
+    transform: rotate(0deg) scale(.6);
+  }
+  50%{
+    transform: rotate(180deg) scale(1.2);
+  }
+  100%{
+    transform: rotate(360deg) scale(.6);
+  }
+}
