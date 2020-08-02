@@ -1,1 +1,132 @@
-.grab{cursor:grab}.grabbing{cursor:grabbing}.messages_list{position:fixed;top:1em;right:1em;width:20em}.messages_list .message{box-sizing:border-box;right:0;position:absolute;transition:top .5s,right .2s;margin-bottom:1em;padding:1.5em;border-radius:.5em;width:100%;user-select:none;overflow:hidden;background-color:#fff;box-shadow:0 0 5px 0 #818181}.messages_list .message:before{content:"";width:.25em;position:absolute;top:0;bottom:0;left:0}.messages_list .message.success:before{background-color:#75c90e}.messages_list .message.error:before{background-color:#fd1515}html{overflow-y:scroll}.content{position:relative}#gallery{width:100%;column-gap:15px;column-fill:auto;opacity:0;overflow:hidden}#gallery.loaded{opacity:1;overflow:auto}.img{display:block;width:100%;height:100%;transition:all .2s}.img_wrapper:hover .img{transform:scale(1.1)}.img_wrapper{-webkit-column-break-inside:avoid;-moz-column-break-inside:avoid;break-inside:avoid;page-break-inside:avoid;word-wrap:break-word;margin-bottom:1em;overflow:hidden;position:relative;border-radius:5px}.img_wrapper:before{content:"";position:absolute;left:0;top:0;right:0;bottom:0;background-color:#000;opacity:0;transition:all .2s}.img_wrapper:hover:before{opacity:.1}.controls{z-index:5;display:none;position:absolute;bottom:0;left:0;right:0;grid-template-columns:repeat(auto-fit,minmax(0,1fr));height:3em}.controls div{grid-row:1;height:100%;color:#fff;display:-webkit-flex;display:-moz-flex;display:-ms-flex;display:-o-flex;display:flex;-ms-align-items:center;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:.7em}.controls .copy_image,.controls .insert_image{background-color:rgba(71,124,8,.5)}.controls .copy_image:hover,.controls .insert_image:hover{background-color:rgba(71,124,8,.7)}.controls .delete_image{background-color:rgba(186,33,33,.5)}.controls .delete_image:hover{background-color:rgba(186,33,33,.7)}.img_wrapper:hover .controls{display:grid}@media (max-width:768px){.controls{display:grid}}
+.grab {
+  cursor: grab; }
+
+.grabbing {
+  cursor: grabbing; }
+
+.messages_list {
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  width: 20em; }
+  .messages_list .message {
+    box-sizing: border-box;
+    right: 0;
+    position: absolute;
+    transition: top .5s, right .2s;
+    margin-bottom: 1em;
+    padding: 1.5em;
+    border-radius: .5em;
+    width: 100%;
+    user-select: none;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 0 5px 0 #818181; }
+    .messages_list .message:before {
+      content: '';
+      width: .25em;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0; }
+    .messages_list .message.success:before {
+      background-color: #75c90e; }
+    .messages_list .message.error:before {
+      background-color: #fd1515; }
+
+html {
+  overflow-y: scroll; }
+
+.content {
+  position: relative; }
+
+#gallery {
+  width: 100%;
+  column-gap: 15px;
+  column-fill: auto;
+  opacity: 0;
+  overflow: hidden; }
+
+#gallery.loaded {
+  opacity: 1;
+  overflow: auto; }
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: all .2s; }
+
+.img_wrapper:hover .img {
+  transform: scale(1.1); }
+
+.img_wrapper {
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  word-wrap: break-word;
+  margin-bottom: 1em;
+  overflow: hidden;
+  position: relative;
+  border-radius: 5px; }
+
+.img_wrapper:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #000;
+  opacity: 0;
+  transition: all .2s; }
+
+.img_wrapper:hover:before {
+  opacity: .1; }
+
+.controls {
+  z-index: 5;
+  display: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  height: 3em; }
+
+.controls div {
+  grid-row: 1;
+  height: 100%;
+  color: #fff;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: -o-flex;
+  display: flex;
+  -ms-align-items: center;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  font-size: .7em; }
+
+.controls .copy_image, .controls .insert_image {
+  background-color: rgba(71, 124, 8, 0.5); }
+
+.controls .copy_image:hover, .controls .insert_image:hover {
+  background-color: rgba(71, 124, 8, 0.7); }
+
+.controls .delete_image {
+  background-color: rgba(186, 33, 33, 0.5); }
+
+.controls .delete_image:hover {
+  background-color: rgba(186, 33, 33, 0.7); }
+
+.img_wrapper:hover .controls {
+  display: grid; }
+
+@media (max-width: 768px) {
+  .controls {
+    display: grid; } }
+

@@ -106,7 +106,7 @@ class ImageAdmin(admin.ModelAdmin):
 
   @csrf_exempt
   def get_images(self, request):
-    if request.is_ajax() and request.method == 'POST':
+    if request.is_ajax() and request.method == 'GET':
       response = {}
       try:
         response['success'] = True

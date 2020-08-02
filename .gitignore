@@ -3,4 +3,5 @@ migrations
 node_modules
 package.json
 package-lock.json
+.eslintrc.js
 webpack.config.js
