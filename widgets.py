@@ -7,20 +7,8 @@ class FrEditorWidget(forms.Widget):
   template_name = 'freditor/freditor.html'
 
   class Media:
-    css = {
-      'all': (
-          'freditor/css/messages.css',
-          'freditor/css/freditor.css',
-          'freditor/css/gallery.css',
-          'css/preloader.css'
-      )
-    }
-    js = (
-      'freditor/js/messages.js',
-      'freditor/js/resize_gallery.js',
-      'freditor/js/delete_image.js',
-      'freditor/js/freditor.js',
-    )
+    css = {'all': ('freditor/bundles/freditor.css',)}
+    js = ('freditor/bundles/freditor.bundle.js',)
 
 
   def __init__(self, attrs=None):
@@ -40,8 +28,8 @@ class DragAndDropWidget(forms.FileInput):
   template_name = 'freditor/drag-n-drop.html'
 
   class Media:
-    css = {'all': ('freditor/css/drag-n-drop.css',)}
-    js = ('freditor/js/drag-n-drop.js',)
+    css = {'all': ('freditor/bundles/drag-n-drop.css',)}
+    js = ('freditor/bundles/drag-n-drop.bundle.js',)
 
 
   def render(self, name, value, attrs=None, renderer=None):

@@ -127,17 +127,11 @@ class ImageAdmin(admin.ModelAdmin):
   class Media:
     css = {
       "all": (
-        'freditor/css/messages.css',
-        'freditor/css/gallery.css',
-        'css/preloader.css',
+        'freditor/bundles/gallery.css',
       ),
     }
     js = (
-      'freditor/js/messages.js',
-      'freditor/js/resize_gallery.js',
-      'freditor/js/delete_image.js',
-      'freditor/js/copy_image.js',
-      'freditor/js/gallery.js',
+      'freditor/bundles/gallery.bundle.js',
     )
 
 

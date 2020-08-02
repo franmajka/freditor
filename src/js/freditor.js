@@ -5,6 +5,7 @@ import resizeGallery from './resize-gallery';
 import deleteImage from './delete-image'
 
 import '../css/freditor.scss';
+import '../css/gallery.scss';
 import '../css/preloader.scss';
 const images = require.context('../img', true, /(?<!default_image)\.png$/)
 import defaultImage from "../img/default_image.png";
