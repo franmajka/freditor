@@ -26,10 +26,33 @@ class FrEditorField(models.TextField):
   def __init__(self, *args, **kwargs):
     btns = kwargs.pop('allowed_btns', [])
     self.allowed_btns = self.BTNS.keys() if btns == '__all__' else btns
-    fetures = kwargs.pop('allowed_features', [])
-    self.allowed_features = self.FEATURES if fetures == '__all__' else fetures
+    features = kwargs.pop('allowed_features', [])
+    self.allowed_features = self.FEATURES if features == '__all__' else features
     super().__init__(*args, **kwargs)
 
+  def deconstruct(self):
+    name, path, args, kwargs = super().deconstruct()
+    kwargs['allowed_btns'] = self.allowed_btns
+    kwargs['allowed_features'] = self.allowed_features
+    return name, path, args, kwargs
+
+  # Делаем из строки обратно словарь
+  # Где-то тут нужно переводить словарь в строку для человеческого отображения в админке
+  def from_db_value(self, value, expression, connection):
+    return value
+
+  # Делаем словарь текст + доп.
+  def to_python(self, value):
+    return value
+
+  def pre_save(self, model_instance,  add):
+    return super().pre_save(model_instance, add)
+
+  # Записываем словарь в бд (переводим в строку json?)
+  def get_prep_value(self, value):
+    return value
+
+  # Вот тут нужно отдавать знаечение для текстареа и для доп. то есть разбивать словарь
   def formfield(self, *args, **kwargs):
     defaults = {
       'form_class': FrEditorFormField,
@@ -44,7 +67,7 @@ class FrEditorField(models.TextField):
 
     btn_values = '|'.join(filter(lambda x: x in allowed_btns, ['h2', 'sub', 'sup', 'p', 'b', 'i', 's']))
     pattern = re.compile(
-      r'\[(?P<tag>{0})\](?P<text>.*?)\[/(?P=tag)\]'.format(btn_values), 
+      r'\[(?P<tag>{0})\](?P<text>.*?)\[/(?P=tag)\]'.format(btn_values),
       flags = re.DOTALL,
     )
     while pattern.search(text) is not None:

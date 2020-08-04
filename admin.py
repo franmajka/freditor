@@ -28,13 +28,13 @@ class FrEditorAdmin(admin.ModelAdmin):
     ModelForm = self.get_form(request, None)
     form = ModelForm(request.POST, request.FILES, instance=None)
     if not form.is_valid(): return HttpResponse('Форма не валідна')
-    for i in self.model._meta.fields:
-      if not i.__class__ == FrEditorField:
-        context[i.name] = request.POST.get(i.name, '')
+    for field in self.model._meta.fields:
+      if not field.__class__ == FrEditorField:
+        context[field.name] = request.POST.get(field.name, '')
         continue
-      content = request.POST.get(i.name, '')
-      content = i.get_html(content)
-      context.update({i.name: content})
+      content = request.POST.get(field.name, '')
+      content = field.get_html(content)
+      context.update({field.name: content})
     return render(request, self.model._meta.template, context)
 
 
@@ -83,30 +83,34 @@ class ImageAdmin(admin.ModelAdmin):
         try:
           image.full_clean()
         except ValidationError:
-          HttpResponse(json.dumps({'message': 'ValidationError'}))
+          HttpResponse(json.dumps({
+            'success': False,
+            'error': 'ValidationError',
+          }))
         else:
           image.save()
           return HttpResponse(json.dumps({
+            'success': True,
             'pk': str(image.pk),
             'url': image.image.url,
-            'message': 'Зображення було завантажено'
+            'message': 'Зображення було завантажено',
           }))
     return HttpResponse()
 
   @csrf_exempt
   def delete_image(self, request):
-    if request.is_ajax() and request.method == 'POST':
+    if request.is_ajax() and request.method == 'GET':
       try:
-        img = self.model.objects.get(pk = json.loads(request.body)['pk'])
+        img = self.model.objects.get(pk = request.GET['pk'])
         img.delete()
         return HttpResponse(json.dumps({'success': True, 'message': 'Зображення було видалено'}))
       except self.model.DoesNotExist:
-        return HttpResponse(json.dumps({'success': False, 'message': 'Зображення не знайдено'}))
+        return HttpResponse(json.dumps({'success': False, 'error': 'Зображення не знайдено'}))
     return HttpResponse()
 
   @csrf_exempt
   def get_images(self, request):
-    if request.is_ajax() and request.method == 'POST':
+    if request.is_ajax() and request.method == 'GET':
       response = {}
       try:
         response['success'] = True
@@ -127,17 +131,11 @@ class ImageAdmin(admin.ModelAdmin):
   class Media:
     css = {
       "all": (
-        'freditor/css/messages.css',
-        'freditor/css/gallery.css',
-        'css/preloader.css',
+        'freditor/bundles/gallery.css',
       ),
     }
     js = (
-      'freditor/js/messages.js',
-      'freditor/js/resize_gallery.js',
-      'freditor/js/delete_image.js',
-      'freditor/js/copy_image.js',
-      'freditor/js/gallery.js',
+      'freditor/bundles/gallery.bundle.js',
     )
 
 
@@ -161,8 +159,15 @@ class FileAdmin(admin.ModelAdmin):
         try:
           file.full_clean()
         except ValidationError:
-          HttpResponse(json.dumps({'message': 'ValidationError'}))
+          HttpResponse(json.dumps({
+            'success': False,
+            'error': 'ValidationError'
+          }))
         else:
           file.save()
-          return HttpResponse(json.dumps({'pk': str(file.pk), 'message': 'Файл було завантажено'}))
+          return HttpResponse(json.dumps({
+            'success': True,
+            'pk': str(file.pk),
+            'message': 'Файл було завантажено'
+          }))
     return HttpResponse()
