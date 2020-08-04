@@ -143,13 +143,6 @@ function clickEventHadler(e) {
   }
 }
 
-function textareaAutoResize() {
-  this.parentElement.style.height = this.parentElement.offsetHeight + 'px';
-  this.style.height = 0;
-  this.style.height = `${this.scrollHeight - parseInt(getComputedStyle(this).padding) * 2}px`;
-  this.parentElement.style.height = null;
-}
-
 /**
  * Handles user's keypresses
  * @param {KeyboardEvent} e
@@ -165,10 +158,6 @@ function keydownEventHandler(e) {
     e.preventDefault();
     submitLinkHandler.call(e.target.nextElementSibling);
     return;
-  }
-
-  if (e.target.dataset.textarea === 'true') {
-    textareaAutoResize.call(e.target);
   }
 }
 
@@ -186,9 +175,10 @@ function showTooltip(anchorElement, textcontent) {
 
   let anchorCoords = anchorElement.getBoundingClientRect();
 
-  tooltipElement.style.left = `${anchorCoords.left +
+  tooltipElement.style.left = `${anchorCoords.left + pageXOffset +
     (anchorElement.offsetWidth - tooltipElement.offsetWidth) / 2}px`;
-  tooltipElement.style.top = `${anchorCoords.top +anchorElement.offsetHeight + ARROW_SIZE}px`;
+  tooltipElement.style.top = `${anchorCoords.top + pageYOffset +
+    anchorElement.offsetHeight + ARROW_SIZE}px`;
 }
 
 /**
@@ -307,12 +297,30 @@ function changeEventHandler(e) {
   }
 }
 
+function textareaAutoResize() {
+  this.parentElement.style.height = this.parentElement.offsetHeight + 'px';
+  this.style.height = 0;
+  this.style.height = `${this.scrollHeight - parseInt(getComputedStyle(this).padding) * 2}px`;
+  this.parentElement.style.height = null;
+}
+
+/**
+ * Handles input event
+ * @param {InputEvent} e
+ */
+function inputEventHandler(e) {
+  if (e.target.dataset.textarea === 'true') {
+    textareaAutoResize.call(e.target);
+  }
+}
+
 window.addEventListener('load', () => {
   document.addEventListener('click', clickEventHadler);
   document.addEventListener('keydown', keydownEventHandler);
   document.addEventListener('mouseover', mouseoverEventHandler);
   document.addEventListener('mouseout', mouseoutEventHandler);
   document.addEventListener('change', changeEventHandler);
+  document.addEventListener('input', inputEventHandler);
 
   document.querySelectorAll('[data-textarea]').forEach(textarea => textareaAutoResize.call(textarea));
 });

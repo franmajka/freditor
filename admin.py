@@ -28,13 +28,13 @@ class FrEditorAdmin(admin.ModelAdmin):
     ModelForm = self.get_form(request, None)
     form = ModelForm(request.POST, request.FILES, instance=None)
     if not form.is_valid(): return HttpResponse('Форма не валідна')
-    for i in self.model._meta.fields:
-      if not i.__class__ == FrEditorField:
-        context[i.name] = request.POST.get(i.name, '')
+    for field in self.model._meta.fields:
+      if not field.__class__ == FrEditorField:
+        context[field.name] = request.POST.get(field.name, '')
         continue
-      content = request.POST.get(i.name, '')
-      content = i.get_html(content)
-      context.update({i.name: content})
+      content = request.POST.get(field.name, '')
+      content = field.get_html(content)
+      context.update({field.name: content})
     return render(request, self.model._meta.template, context)
 
 
