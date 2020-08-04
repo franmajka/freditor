@@ -3,6 +3,7 @@
 import Message from './Message';
 import Overlay from './Overlay';
 import createImage from './create-image';
+import baseRequest from './base-request';
 
 import '../css/freditor.scss';
 import '../css/gallery.scss';
@@ -79,16 +80,13 @@ function submitLinkHandler() {
   if (this.dataset.submitLink === 'link') {
     if (sS != sE) {
       textarea.value = `${value.slice(0, sS)}[url=${linkUrl}]${value.slice(sS, sE)}[/url]${value.slice(sE)}`;
-      return;
     } else {
       textarea.value = `${value.slice(0, sE)}[url=${linkUrl}]${urlStr}[/url]${value.slice(sE)}`;
       textarea.selectionStart = sS + `[url=${linkUrl}]`.length;
       textarea.selectionEnd = sE + `[url=${linkUrl}]${urlStr}`.length;
-      return;
     }
   } else if (this.dataset.submitLink === 'image') {
     textarea.value = `${value.slice(0, sE)}[img url=${linkUrl}]${value.slice(sE)}`;
-    return;
   }
 
   textarea.focus();
@@ -102,9 +100,23 @@ function getGallery() {
   window.overlay.open(this);
 }
 
+function previewHandler() {
+  let form = document.querySelector('form');
+
+  let original_target = form.target;
+  let original_action = form.action;
+
+  form.target = '_blank';
+  form.action = this.dataset.url;
+  form.submit();
+
+  form.target = original_target;
+  form.action = original_action;
+}
+
 /**
  * Handles user's clicks
- * @param {MouseEvent} e Click event
+ * @param {MouseEvent} e
  */
 function clickEventHadler(e) {
   if (e.target.dataset.btn) {
@@ -123,176 +135,13 @@ function clickEventHadler(e) {
     getGallery.call(e.target);
     return;
   }
-}
 
-window.addEventListener('load', () => {
-  document.addEventListener('click', clickEventHadler);
-
-  document.querySelectorAll('.freditor textarea').forEach(textarea => {
-    textareaAutoResize.call(textarea);
-    textarea.addEventListener('input', textareaAutoResize);
-  });
-
-  document.querySelectorAll('.btn').forEach(i => {
-    i.addEventListener('keyup', function(e){
-      if(e.key == 'Enter'){
-        this.click();
-      }
-    });
-  });
-
-  document.querySelectorAll('.link_value').forEach(i => {
-    i.addEventListener('keyup', function(e){
-      if(e.key == 'Enter'){
-        this.nextElementSibling.onclick();
-      }
-    });
-  });
-
-  document.getElementById('load_file').addEventListener('change', function(){
-    let message = new Message();
-    message.success = false;
-
-    const formData = new FormData();
-    if(this.files && this.files[0]){
-      formData.append('file', this.files[0]);
-    }else{
-      return;
-    }
-
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', this.dataset.url, true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    let file_input = this;
-    xhr.onreadystatechange = function(){
-      if(xhr.readyState === 4){
-        switch(xhr.status){
-          case 200: {
-            let textarea = file_input.closest('.controls_btns').nextElementSibling;
-            let value = textarea.value;
-
-            if(xhr.responseText){
-              let data = JSON.parse(xhr.responseText);
-              if(data.pk){
-                let sS = textarea.selectionStart;
-                let sE = textarea.selectionEnd;
-
-                if(sS != sE){
-                  textarea.value = value.slice(0, sS) + `[file=${data.pk}]` +
-                      value.slice(sS, sE) + '[/file]' + value.slice(sE);
-                }else{
-                  textarea.value = value.slice(0, textarea.selectionEnd) +
-                      `[file=${data.pk}]${data.pk}[/file]` + value.slice(textarea.selectionEnd);
-                  textarea.selectionStart = sS + `[file=${data.pk}]`.length;
-                  textarea.selectionEnd = sE + `[file=${data.pk}]${data.pk}`.length;
-                }
-
-                textarea.focus();
-
-                message.success = true;
-
-              }
-              message.textContent = data.message;
-            }else{
-              message.textContent = 'Щось пішло не так...';
-            }
-            break;
-          }
-          case 403: {
-            message.textContent = 'Відмовлено в доступі';
-            break;
-          }
-          case 0: {
-            message.textContent = 'Немає доступу до інтернету';
-            break;
-          }
-          default: {
-            message.textContent = 'Щось пішло не так...';
-          }
-        }
-        Message.append(message);
-      }
-    };
-    xhr.send(formData);
-  });
-
-  document.getElementById('image_load').addEventListener('change', function(){
-    let message = new Message();
-    message.success = false;
-
-    const formData = new FormData();
-    if(this.files && this.files[0] && this.files[0].type.slice(0, 5) == 'image'){
-      formData.append('image', this.files[0]);
-    }else{
-      message.success = false;
-      message.textContent = 'Спробуйте завантажити зображення';
-      Message.append(message);
-      return;
-    }
-
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', this.dataset.url, true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    let file_input = this;
-    xhr.onreadystatechange = function(){
-      if(xhr.readyState === 4){
-        switch(xhr.status){
-          case 200: {
-            let textarea = file_input.closest('.controls_btns').nextElementSibling;
-            let value = textarea.value;
-
-            if(xhr.responseText){
-              let data = JSON.parse(xhr.responseText);
-              if(data.pk){
-                textarea.value = value.slice(0, textarea.selectionEnd) +
-                `[img=${data.pk}]` + value.slice(textarea.selectionEnd);
-
-                textarea.focus();
-
-                message.success = true;
-
-                if(window.overlay && Object.prototype.hasOwnProperty.call(window.overlay.children, 'gallery')){
-                  window.overlay.children.gallery.firstElementChild.append(createImage(data.pk, data.url));
-                }
-              }
-              message.textContent = data.message;
-            }else{
-              message.textContent = 'Щось пішло не так...';
-            }
-            break;
-          }
-          case 403: {
-            message.textContent = 'Відмовлено в доступі';
-            break;
-          }
-          case 0: {
-            message.textContent = 'Немає доступу до інтернету';
-            break;
-          }
-          default: {
-            message.textContent = 'Щось пішло не так...';
-          }
-        }
-        Message.append(message);
-      }
-    };
-    xhr.send(formData);
-  });
-
-  document.querySelector('.preview').addEventListener('click', function(e){
+  if (e.target.dataset.preview === 'true') {
     e.preventDefault();
-    let form = document.querySelector('form');
-    let original_target = form.target;
-    let original_action = form.action;
-    form.target = '_blank';
-    form.action = this.dataset.url;
-    form.submit();
-    form.target = original_target;
-    form.action = original_action;
-  });
-});
+    previewHandler.call(e.target);
+    return;
+  }
+}
 
 function textareaAutoResize() {
   this.parentElement.style.height = this.parentElement.offsetHeight + 'px';
@@ -300,3 +149,170 @@ function textareaAutoResize() {
   this.style.height = `${this.scrollHeight - parseInt(getComputedStyle(this).padding) * 2}px`;
   this.parentElement.style.height = null;
 }
+
+/**
+ * Handles user's keypresses
+ * @param {KeyboardEvent} e
+ */
+function keydownEventHandler(e) {
+  if (e.target.dataset.btn && e.key === 'Enter') {
+    e.preventDefault();
+    btnClickHandler.call(e.target);
+    return;
+  }
+
+  if (e.target.nextElementSibling?.dataset.submitLink && e.key === 'Enter') {
+    e.preventDefault();
+    submitLinkHandler.call(e.target.nextElementSibling);
+    return;
+  }
+
+  if (e.target.dataset.textarea === 'true') {
+    textareaAutoResize.call(e.target);
+  }
+}
+
+/**
+ * Shows the tooltip of the element
+ * @param {HTMLElement} anchorElement Element that has tooltip
+ * @param {String} textcontent Text of the tooltip
+ */
+function showTooltip(anchorElement, textcontent) {
+  const ARROW_SIZE = 10;
+  let tooltipElement = document.createElement('div');
+  tooltipElement.className = 'tooltip';
+  tooltipElement.textContent = textcontent;
+  document.body.append(tooltipElement);
+
+  let anchorCoords = anchorElement.getBoundingClientRect();
+
+  tooltipElement.style.left = `${anchorCoords.left +
+    (anchorElement.offsetWidth - tooltipElement.offsetWidth) / 2}px`;
+  tooltipElement.style.top = `${anchorCoords.top +anchorElement.offsetHeight + ARROW_SIZE}px`;
+}
+
+/**
+ * Handles mouseover event
+ * @param {MouseEvent} e
+ */
+function mouseoverEventHandler(e) {
+  let anchorElement = e.target.closest('[data-tooltip]');
+  if (anchorElement) showTooltip(anchorElement, anchorElement.dataset.tooltip);
+}
+
+/**
+ * Handles mouseout event
+ */
+function mouseoutEventHandler() {
+  document.querySelectorAll('.tooltip').forEach(i => i.remove());
+}
+
+async function loadImage() {
+  const formData = new FormData();
+  if (this.files && this.files[0] && this.files[0].type.slice(0, 5) == 'image') {
+    formData.append('image', this.files[0]);
+  } else {
+    let message = new Message();
+    message.success = false;
+    message.textContent = 'Спробуйте завантажити зображення';
+    Message.append(message);
+    return false;
+  }
+
+  let json = await baseRequest({
+    url: this.dataset.url,
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!json) return false;
+
+  let textarea = this.closest('.controls_btns').nextElementSibling;
+  let value = textarea.value;
+
+  textarea.value = value.slice(0, textarea.selectionEnd) +
+    `[img=${json.pk}]` + value.slice(textarea.selectionEnd);
+  textarea.focus();
+
+  if (window.overlay && Object.prototype.hasOwnProperty.call(window.overlay.children, 'gallery')) {
+    window.overlay.children.gallery.firstElementChild.append(createImage(json.pk, json.url));
+  }
+
+  let message = new Message();
+  message.success = true;
+  message.textContent = json.message;
+  Message.append(message);
+  return true;
+}
+
+async function loadFile() {
+
+  const formData = new FormData();
+  if (this.files && this.files[0]) {
+    formData.append('file', this.files[0]);
+  } else {
+    let message = new Message();
+    message.success = false;
+    message.textContent = 'Ви не завантажили файл';
+    Message.append(message);
+    return false;
+  }
+
+  let json = await baseRequest({
+    url: this.dataset.url,
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!json) return false;
+
+  let textarea = this.closest('.controls_btns').nextElementSibling;
+  let value = textarea.value;
+
+  let sS = textarea.selectionStart;
+  let sE = textarea.selectionEnd;
+
+  if (sS != sE) {
+    textarea.value = value.slice(0, sS) + `[file=${json.pk}]` +
+      value.slice(sS, sE) + '[/file]' + value.slice(sE);
+  } else {
+    textarea.value = value.slice(0, textarea.selectionEnd) +
+      `[file=${json.pk}]${json.pk}[/file]` + value.slice(textarea.selectionEnd);
+    textarea.selectionStart = sS + `[file=${json.pk}]`.length;
+    textarea.selectionEnd = sE + `[file=${json.pk}]${json.pk}`.length;
+  }
+
+  textarea.focus();
+
+  let message = new Message();
+  message.success = true;
+  message.textContent = json.message;
+  Message.append(message);
+  return true;
+}
+
+/**
+ * Handles change event
+ * @param {Event} e
+ */
+function changeEventHandler(e) {
+  if (e.target.dataset.load === 'image') {
+    loadImage.call(e.target);
+    return;
+  }
+
+  if (e.target.dataset.load === 'file') {
+    loadFile.call(e.target);
+    return;
+  }
+}
+
+window.addEventListener('load', () => {
+  document.addEventListener('click', clickEventHadler);
+  document.addEventListener('keydown', keydownEventHandler);
+  document.addEventListener('mouseover', mouseoverEventHandler);
+  document.addEventListener('mouseout', mouseoutEventHandler);
+  document.addEventListener('change', changeEventHandler);
+
+  document.querySelectorAll('[data-textarea]').forEach(textarea => textareaAutoResize.call(textarea));
+});

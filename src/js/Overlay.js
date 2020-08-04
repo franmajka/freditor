@@ -1,5 +1,6 @@
 import defaultImage from '../img/default_image.png';
 import Message from './Message';
+import baseRequest from './base-request';
 import resizeGallery from './resize-gallery';
 import deleteImage from './delete-image';
 import createImage from './create-image';
@@ -133,44 +134,9 @@ export default class Overlay {
     let preloader = overlayWindow.querySelector(`#${OVERLAY_CHILDREN.preloader.id}`);
     this.children.preloader = preloader;
 
-    let response = await fetch(
-      dataset.getUrl,
-      {
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-        }
-      }
-    );
+    let json = await baseRequest({url: dataset.getUrl});
 
-    if (!response.ok) {
-      let message = new Message;
-      message.success = false;
-      switch (response.status) {
-        case 403:
-          message.textContent = 'Відмовлено в доступі';
-          break;
-
-        case 0:
-          message.textContent = 'Немає зв\'язку з сервером.';
-          break;
-
-        default:
-          message.textContent = 'Щось пішло не так...';
-          break;
-      }
-
-      Message.append(message);
-      return false;
-    }
-    let json = await response.json();
-
-    if (!json || !json.success) {
-      let message = new Message();
-      message.success = false;
-      message.textContent = json?.error || 'Щось пішло не так...';
-      Message.append(message);
-      return false;
-    }
+    if (!json) return false;
 
     let images = [];
     for (let pk in json.images) {
