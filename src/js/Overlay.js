@@ -78,8 +78,11 @@ export default class Overlay {
 
       if (e.target.classList.contains('insert_image')) {
         let textarea = this.currentCaller.closest('.freditor').querySelector('textarea');
-        textarea.value = textarea.value.slice(0, textarea.selectionStart) + e.target.dataset.image_link +
-          textarea.value.slice(textarea.selectionEnd);
+        let { selectionStart: sS, selectionEnd: sE } = textarea;
+
+        textarea.setRangeText(e.target.dataset.image_link, sS, sE);
+        textarea.selectionStart += e.target.dataset.image_link.length;
+        textarea.selectionEnd = textarea.selectionStart;
 
         let message = new Message();
         message.success = true;

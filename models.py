@@ -36,8 +36,10 @@ def FilePath(instance, filename):
 class OverwriteStorage(FileSystemStorage):
   def get_available_name(self, name, max_length = None):
     if self.exists(name):
-      self.delete(name)
-      File.objects.get(pk=os.split(name)[1]).delete()
+      try:
+        File.objects.get(pk=os.path.split(name)[1]).delete()
+      except File.DoesNotExist:
+        self.delete(name)
     return name
 
 
@@ -66,7 +68,7 @@ class File(models.Model):
   file = models.FileField(upload_to = FilePath, storage = OverwriteStorage())
 
   def save(self, *args, **kwargs):
-    self.filename = os.path.split(self.file.name)[1]
+    self.filename = os.path.split(FilePath(self, self.file.name))[1]
     super().save(*args, **kwargs)
 
   def delete(self, *args, **kwargs):

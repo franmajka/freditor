@@ -44,15 +44,11 @@ function btnClickHandler() {
   if (!Object.prototype.hasOwnProperty.call(BTN_VALUES, btnType)) return;
 
   let textarea = this.closest('.controls_btns').nextElementSibling;
-  let value = textarea.value;
+  let { value, selectionStart: sS, selectionEnd: sE } = textarea;
 
-  let sS = textarea.selectionStart;
-  let sE = textarea.selectionEnd;
-  if (sS != sE) {
-    textarea.value = `${value.slice(0, sS)}[${BTN_VALUES[btnType]}]${value.slice(sS, sE)}[/${BTN_VALUES[btnType]}]${value.slice(sE)}`;
-  } else {
-    textarea.value = `${value.slice(0, sS)}[${BTN_VALUES[btnType]}][/${BTN_VALUES[btnType]}]${value.slice(sE)}`;
-    textarea.selectionStart = sS + `[${BTN_VALUES[btnType]}]`.length;
+  textarea.setRangeText(`[${BTN_VALUES[btnType]}]${value.slice(sS, sE)}[/${BTN_VALUES[btnType]}]`, sS, sE);
+  if (sS === sE) {
+    textarea.selectionStart += `[${BTN_VALUES[btnType]}]`.length;
     textarea.selectionEnd = textarea.selectionStart;
   }
 
@@ -74,19 +70,18 @@ function submitLinkHandler() {
   this.previousElementSibling.value = '';
 
   let textarea = this.closest('.controls_btns').nextElementSibling;
-  let value = textarea.value;
-  let sS = textarea.selectionStart;
-  let sE = textarea.selectionEnd;
+  let { value, selectionStart: sS, selectionEnd: sE } = textarea;
+
   if (this.dataset.submitLink === 'link') {
-    if (sS != sE) {
-      textarea.value = `${value.slice(0, sS)}[url=${linkUrl}]${value.slice(sS, sE)}[/url]${value.slice(sE)}`;
-    } else {
-      textarea.value = `${value.slice(0, sE)}[url=${linkUrl}]${urlStr}[/url]${value.slice(sE)}`;
-      textarea.selectionStart = sS + `[url=${linkUrl}]`.length;
+    textarea.setRangeText(`[url=${linkUrl}]${value.slice(sS, sE) || urlStr}[/url]`, sS, sE);
+    if (sS === sE) {
+      textarea.selectionStart += `[url=${linkUrl}]`.length;
       textarea.selectionEnd = sE + `[url=${linkUrl}]${urlStr}`.length;
     }
   } else if (this.dataset.submitLink === 'image') {
-    textarea.value = `${value.slice(0, sE)}[img url=${linkUrl}]${value.slice(sE)}`;
+    textarea.setRangeText(`[img url=${linkUrl}]`, sS, sE);
+    textarea.selectionStart += `[img url=${linkUrl}]`.length;
+    textarea.selectionEnd = textarea.selectionStart;
   }
 
   textarea.focus();
@@ -218,10 +213,12 @@ async function loadImage() {
   if (!json) return false;
 
   let textarea = this.closest('.controls_btns').nextElementSibling;
-  let value = textarea.value;
+  let { selectionStart: sS, selectionEnd: sE } = textarea;
 
-  textarea.value = value.slice(0, textarea.selectionEnd) +
-    `[img=${json.pk}]` + value.slice(textarea.selectionEnd);
+  textarea.setRangeText(`[img=${json.pk}]`, sS, sE);
+  textarea.selectionStart += `[img=${json.pk}]`.length;
+  textarea.selectionEnd = textarea.selectionStart;
+
   textarea.focus();
 
   if (window.overlay && Object.prototype.hasOwnProperty.call(window.overlay.children, 'gallery')) {
@@ -257,18 +254,12 @@ async function loadFile() {
   if (!json) return false;
 
   let textarea = this.closest('.controls_btns').nextElementSibling;
-  let value = textarea.value;
+  let { value, selectionStart: sS, selectionEnd: sE } = textarea;
 
-  let sS = textarea.selectionStart;
-  let sE = textarea.selectionEnd;
+  textarea.setRangeText(`[file=${json.pk}]${value.slice(sS, sE) || json.pk}[/file]`, sS, sE);
 
-  if (sS != sE) {
-    textarea.value = value.slice(0, sS) + `[file=${json.pk}]` +
-      value.slice(sS, sE) + '[/file]' + value.slice(sE);
-  } else {
-    textarea.value = value.slice(0, textarea.selectionEnd) +
-      `[file=${json.pk}]${json.pk}[/file]` + value.slice(textarea.selectionEnd);
-    textarea.selectionStart = sS + `[file=${json.pk}]`.length;
+  if (sS === sE) {
+    textarea.selectionStart += `[file=${json.pk}]`.length;
     textarea.selectionEnd = sE + `[file=${json.pk}]${json.pk}`.length;
   }
 

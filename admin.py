@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 from django import forms
 from django.contrib import admin
@@ -6,7 +7,9 @@ from django.shortcuts import render
 from django.urls import path
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.safestring import mark_safe
 from django.http import HttpResponse
+from django.core.exceptions import ValidationError
 
 from .widgets import DragAndDropWidget
 from .models import Image, File
@@ -123,7 +126,7 @@ class ImageAdmin(admin.ModelAdmin):
           response['images'][str(img.pk)] = img.get_url()
         return HttpResponse(json.dumps(response))
       except:
-        response['success'] = False;
+        response['success'] = False
         response['error'] = str(sys.exc_info()[0])
         return HttpResponse(json.dumps(response))
     return HttpResponse()
