@@ -4,6 +4,7 @@ import Message from './Message';
 import Overlay from './Overlay';
 import createImage from './create-image';
 import baseRequest from './base-request';
+import Additions from './Additions';
 
 import '../css/freditor.scss';
 import '../css/gallery.scss';
@@ -289,6 +290,7 @@ function changeEventHandler(e) {
 }
 
 function textareaAutoResize() {
+  if (this.dataset.hidden === 'true') return;
   this.parentElement.style.height = this.parentElement.offsetHeight + 'px';
   this.style.height = 0;
   this.style.height = `${this.scrollHeight - parseInt(getComputedStyle(this).padding) * 2}px`;
@@ -314,4 +316,6 @@ window.addEventListener('load', () => {
   document.addEventListener('input', inputEventHandler);
 
   document.querySelectorAll('[data-textarea]').forEach(textarea => textareaAutoResize.call(textarea));
+
+  window.a = new Additions(document.querySelector('.additions'));
 });

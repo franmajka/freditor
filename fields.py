@@ -89,7 +89,7 @@ class FrEditorField(models.TextField):
       pattern = re.compile(r'\[img url=(.+?)\]')
       text = pattern.sub(r'<img src="\1" alt="\1">', text)
       if Image:
-        pattern = re.compile(r'\[img=((?:.(?!\]))*.)\]')
+        pattern = re.compile(r'\[img=(.+?)\]')
         for img in pattern.finditer(text):
           try:
             model = Image.objects.get(pk = img.group(1))

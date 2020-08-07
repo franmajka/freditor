@@ -34,6 +34,9 @@
     .messages_list .message.error:before {
       background-color: #fd1515; }
 
+[data-hidden='true'] {
+  display: none !important; }
+
 .freditor {
   display: inline-block;
   width: min-content; }
@@ -129,10 +132,13 @@
       .freditor .controls_btns .add_link .submit_link:hover, .freditor .controls_btns .add_link .submit_link:focus, .freditor .controls_btns .add_image .submit_link:hover, .freditor .controls_btns .add_image .submit_link:focus {
         background-color: #bbb;
         color: #131313; }
-  .freditor textarea {
-    overflow: hidden;
-    margin-top: .5em !important;
+  .freditor .main_body, .freditor .additions {
     padding: 1em;
+    margin-top: .5em;
+    width: 50em; }
+  .freditor .main_body {
+    margin-top: .5em;
+    overflow: hidden;
     outline: none;
     -moz-appearance: none;
     display: block;
@@ -140,10 +146,12 @@
     max-width: none !important;
     max-height: none !important;
     flex: none !important;
-    font-size: inherit !important;
-    width: 50em; }
-    .freditor textarea:focus {
+    font-size: inherit !important; }
+    .freditor .main_body:focus {
       border-color: #85b7d9; }
+  .freditor .additions {
+    border: 1px solid #aac532;
+    border-radius: 4px; }
 
 .tooltip {
   position: absolute;
@@ -338,7 +346,7 @@
       margin-left: 0; } }
 
 @media (max-width: 630px) {
-  .freditor textarea {
+  .main_body, .additions {
     width: 40em; } }
 
 @media (max-width: 520px) {
@@ -349,11 +357,11 @@
     margin-left: 0; }
   .freditor .add_image .get_gallery {
     margin-left: .5em; }
-  .freditor textarea {
+  .main_body, .additions {
     width: 30em; } }
 
 @media (max-width: 330px) {
-  .freditor textarea {
+  .main_body, .additions {
     width: 100%; } }
 
 .grab {

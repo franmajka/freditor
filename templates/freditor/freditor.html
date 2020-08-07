@@ -30,5 +30,10 @@
 			{% endif %}
 		</div>
 	{% endif %}
-	<textarea name="{{ widget.name }}" {% for name, value in widget.attrs.items %}{% if value is not False and name != 'allowed_btns' %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endfor %} data-textarea='true'>{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+	<textarea name="{{ widget.name }}" class='main_body' {% for name, value in widget.attrs.items %}{% if value is not False and name != 'allowed_btns' %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endfor %} data-textarea='true' placeholder="Основна частина">{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+	<div class="additions" {% if not widget.additions %} data-hidden="true" {% endif %}>
+		{% if widget.additions %}
+			{{widget.additions}}
+		{% endif %}
+	</div>
 </div>

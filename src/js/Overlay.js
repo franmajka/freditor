@@ -77,7 +77,7 @@ export default class Overlay {
       if (e.target.dataset.hide || e.target.classList.contains('insert_image')) this.hide();
 
       if (e.target.classList.contains('insert_image')) {
-        let textarea = this.currentCaller.closest('.freditor').querySelector('textarea');
+        let textarea = this.currentCaller.closest('.freditor').querySelector('.main_body');
         let { selectionStart: sS, selectionEnd: sE } = textarea;
 
         textarea.setRangeText(e.target.dataset.image_link, sS, sE);
