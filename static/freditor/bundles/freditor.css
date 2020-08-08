@@ -152,6 +152,9 @@
   .freditor .additions {
     border: 1px solid #aac532;
     border-radius: 4px; }
+  .freditor .additions_list {
+    margin: 0;
+    padding-left: 1em; }
 
 .tooltip {
   position: absolute;
