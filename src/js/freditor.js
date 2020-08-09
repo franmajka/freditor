@@ -61,6 +61,20 @@ function submitLinkHandler() {
   let linkUrl = this.previousElementSibling.value;
   if (!linkUrl) return;
 
+  this.previousElementSibling.value = '';
+
+  try {
+    linkUrl = decodeURI(linkUrl);
+  } catch (err) {
+    if (!(err instanceof URIError)) throw err;
+    let message = new Message();
+    message.success = false;
+    message.textContent = 'Неправильне посилання';
+    Message.append(message);
+    return;
+  }
+
+  let additions = Additions.additionsMap.get(this.closest('.freditor').querySelector('.additions'));
   let urlStr = linkUrl;
 
   urlStr = urlStr.replace(/https?:\/\//, '');
@@ -68,21 +82,23 @@ function submitLinkHandler() {
   let slashIndex = urlStr.indexOf('/');
   if (~slashIndex) urlStr = urlStr.slice(0, slashIndex);
 
-  this.previousElementSibling.value = '';
-
   let textarea = this.closest('.controls_btns').nextElementSibling;
   let { value, selectionStart: sS, selectionEnd: sE } = textarea;
 
   if (this.dataset.submitLink === 'link') {
-    textarea.setRangeText(`[url=${linkUrl}]${value.slice(sS, sE) || urlStr}[/url]`, sS, sE);
-    if (sS === sE) {
-      textarea.selectionStart += `[url=${linkUrl}]`.length;
-      textarea.selectionEnd = sE + `[url=${linkUrl}]${urlStr}`.length;
-    }
+    additions.appendTo('links', linkUrl, index => {
+      textarea.setRangeText(`[url=${index}]${value.slice(sS, sE) || urlStr}[/url]`, sS, sE);
+      if (sS === sE) {
+        textarea.selectionStart += `[url=${index}]`.length;
+        textarea.selectionEnd = sE + `[url=${index}]${urlStr}`.length;
+      }
+    });
   } else if (this.dataset.submitLink === 'image') {
-    textarea.setRangeText(`[img url=${linkUrl}]`, sS, sE);
-    textarea.selectionStart += `[img url=${linkUrl}]`.length;
-    textarea.selectionEnd = textarea.selectionStart;
+    additions.appendTo('images', linkUrl, index => {
+      textarea.setRangeText(`[img url=${index}]`, sS, sE);
+      textarea.selectionStart += `[img url=${index}]`.length;
+      textarea.selectionEnd = textarea.selectionStart;
+    });
   }
 
   textarea.focus();
@@ -215,10 +231,16 @@ async function loadImage() {
 
   let textarea = this.closest('.controls_btns').nextElementSibling;
   let { selectionStart: sS, selectionEnd: sE } = textarea;
+  let additions = Additions.additionsMap.get(this.closest('.freditor').querySelector('.additions'));
 
-  textarea.setRangeText(`[img=${json.pk}]`, sS, sE);
-  textarea.selectionStart += `[img=${json.pk}]`.length;
-  textarea.selectionEnd = textarea.selectionStart;
+  additions.appendTo('images', {
+    pk: json.pk,
+    url: json.url
+  }, index => {
+    textarea.setRangeText(`[img=${index}]`, sS, sE);
+    textarea.selectionStart += `[img=${index}]`.length;
+    textarea.selectionEnd = textarea.selectionStart;
+  });
 
   textarea.focus();
 
@@ -256,13 +278,19 @@ async function loadFile() {
 
   let textarea = this.closest('.controls_btns').nextElementSibling;
   let { value, selectionStart: sS, selectionEnd: sE } = textarea;
+  let additions = Additions.additionsMap.get(this.closest('.freditor').querySelector('.additions'));
 
-  textarea.setRangeText(`[file=${json.pk}]${value.slice(sS, sE) || json.pk}[/file]`, sS, sE);
+  additions.appendTo('files', {
+    pk: json.pk,
+    url: json.url
+  }, index => {
+    textarea.setRangeText(`[file=${index}]${value.slice(sS, sE) || json.pk}[/file]`, sS, sE);
 
-  if (sS === sE) {
-    textarea.selectionStart += `[file=${json.pk}]`.length;
-    textarea.selectionEnd = sE + `[file=${json.pk}]${json.pk}`.length;
-  }
+    if (sS === sE) {
+      textarea.selectionStart += `[file=${index}]`.length;
+      textarea.selectionEnd = sE + `[file=${index}]${json.pk}`.length;
+    }
+  });
 
   textarea.focus();
 

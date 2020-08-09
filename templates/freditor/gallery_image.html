@@ -1,9 +1,9 @@
-<div class="img_wrapper">
+<div class="img_wrapper" data-pk='{{img.pk}}' data-url='{{img.image.url}}'>
   {% if isImage %}
     <img src="{{img.image.url}}" class='img'>
     <div class="controls">
       <div class="copy_image" data-copy='[img={{img.pk}}]'>Скопіювати у буфер обміну</div>
-      <div class="delete_image" data-pk='{{img.pk}}'>Видалити зображення</div>
+      <div class="delete_image">Видалити зображення</div>
     </div>
   {% endif %}
 </div>

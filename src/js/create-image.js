@@ -7,12 +7,14 @@
 export default function createImage(pk, url) {
   let imgWrapper = document.createElement('div');
   imgWrapper.classList.add('img_wrapper');
+  imgWrapper.dataset.pk = pk;
+  imgWrapper.dataset.url = url;
 
   imgWrapper.insertAdjacentHTML('afterbegin', `
     <img src='${url}' class='img'>
     <div class='controls'>
-      <div class='delete_image' data-pk='${pk}'>Видалити зображення</div>
-      <div class='insert_image' data-image_link='[img=${pk}]'>Додати зображення</div>
+      <div class='delete_image'>Видалити зображення</div>
+      <div class='insert_image'>Додати зображення</div>
     </div>
   `);
 

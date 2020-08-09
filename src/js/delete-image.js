@@ -4,13 +4,15 @@ import Message from './Message';
 import baseRequest from './base-request';
 
 export default async function deleteImage() {
+  let imgWrapper = this.closest('.img_wrapper');
+
   let url = new URL(location.origin + document.getElementById('gallery').dataset.urlDelete);
-  url.search = new URLSearchParams({'pk': this.dataset.pk}).toString();
+  url.search = new URLSearchParams({'pk': imgWrapper.dataset.pk}).toString();
   let json = await baseRequest({url});
 
   if (!json) return false;
 
-  this.closest('.img_wrapper').remove();
+  imgWrapper.remove();
 
   let message = new Message();
   message.success = true;

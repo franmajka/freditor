@@ -117,13 +117,16 @@ class ImageAdmin(admin.ModelAdmin):
       response = {}
       try:
         response['success'] = True
-        response['images'] = {}
+        response['images'] = []
         for img in Image.objects.all():
           is_image = img.image and img.image.url and default_storage.exists(img.image.name)
           if not is_image:
             img.delete()
             continue
-          response['images'][str(img.pk)] = img.get_url()
+          response['images'].append({
+            'pk': str(img.pk),
+            'url': img.image.url
+          })
         return HttpResponse(json.dumps(response))
       except:
         response['success'] = False
@@ -171,6 +174,7 @@ class FileAdmin(admin.ModelAdmin):
           return HttpResponse(json.dumps({
             'success': True,
             'pk': str(file.pk),
-            'message': 'Файл було завантажено'
+            'url': file.file.url,
+            'message': 'Файл було завантажено',
           }))
     return HttpResponse()

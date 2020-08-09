@@ -2,8 +2,8 @@
 
 /** Class representing a message */
 export default class Message {
-    static messagesList = []; // List with Message objects
-    static $messagesList; // List with message HTML elements
+    static messagesMap = new WeakMap();
+    static $messagesList;
 
     /** Creates message HTMLDivElement */
     constructor() {
@@ -11,7 +11,7 @@ export default class Message {
         this.$element.classList.add('message');
         this.removing = false;
         this.grabbing = false;
-        Message.messagesList.push(this)
+        Message.messagesMap.set(this.$element, this);
     }
 
     /**
@@ -101,23 +101,6 @@ export default class Message {
     }
 
     /**
-     * Gets the Message object from HTML Element if it's in the list
-     * @param {HTMLDivElement} messageElement HTML representation of message
-     */
-    static getMessage(messageElement) {
-        return Message.messagesList.find(message => message.HTML === messageElement)
-    }
-
-    /**
-     * Deletes message from messagesList so the garbage collector can delete the object
-     * @param {Message} message Message that will be deleted
-     */
-    static delete(message) {
-        let index = Message.messagesList.indexOf(message);
-        if (~index) Message.messagesList.splice(index, 1);
-    }
-
-    /**
      * Appends message to the DOM and moves other messages with transition
      * @param {Message} messageElement Message that will be appended
      */
@@ -140,9 +123,9 @@ export default class Message {
         message.timeoutId = setTimeout(Message.remove, 10000, message);
 
         if (messagesHeight > document.documentElement.clientHeight) {
-            let last = Message.getMessage(Message.messagesListElement.lastElementChild);
+            let last = Message.messagesMap.get(Message.messagesListElement.lastElementChild);
             while (last.removing) {
-                last = Message.getMessage(last.HTML.previousElementSibling);
+                last = Message.messagesMap.get(last.HTML.previousElementSibling);
                 if (last === undefined) return
             };
             Message.remove(last);
@@ -176,7 +159,7 @@ export default class Message {
 
         messageElement.ontransitionend = function () {
             this.remove();
-            Message.delete(message);
+            Message.messagesMap.delete(this)
             if (message.timeoutId) clearInterval(message.timeoutId);
         };
     }
@@ -185,7 +168,7 @@ export default class Message {
 window.addEventListener('load', () => {
     Message.messagesListElement.addEventListener('mousedown', e => {
         const messageElement = e.target;
-        const message = Message.getMessage(messageElement);
+        const message = Message.messagesMap.get(messageElement);
 
         if (!message || message.removing) return
 

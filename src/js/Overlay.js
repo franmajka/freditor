@@ -1,5 +1,6 @@
 import defaultImage from '../img/default_image.png';
 import Message from './Message';
+import Additions from './Additions';
 import baseRequest from './base-request';
 import resizeGallery from './resize-gallery';
 import deleteImage from './delete-image';
@@ -51,7 +52,6 @@ export default class Overlay {
 
   /**
    * Constructs Overlay object by creating a base HTMLElement
-   * @param {HTMLElement} caller An element that triggered the event
    */
   constructor() {
     this.$element = document.createElement('div');
@@ -63,7 +63,7 @@ export default class Overlay {
       </div>
     `);
 
-    this.setupOverlay();
+    this._setup();
 
     document.body.append(this.$element);
 
@@ -72,24 +72,12 @@ export default class Overlay {
   }
 
   /** Adds click event listener to the base overlay object */
-  setupOverlay() {
+  _setup() {
     this.$element.addEventListener('click', e => {
       if (e.target.dataset.hide || e.target.classList.contains('insert_image')) this.hide();
 
       if (e.target.classList.contains('insert_image')) {
-        let textarea = this.currentCaller.closest('.freditor').querySelector('.main_body');
-        let { selectionStart: sS, selectionEnd: sE } = textarea;
-
-        textarea.setRangeText(e.target.dataset.image_link, sS, sE);
-        textarea.selectionStart += e.target.dataset.image_link.length;
-        textarea.selectionEnd = textarea.selectionStart;
-
-        let message = new Message();
-        message.success = true;
-        message.textContent = 'Зображення було додано';
-        Message.append(message);
-
-        textarea.focus();
+        insertImage.call(this, e);
       } else if (e.target.classList.contains('delete_image')) {
         deleteImage.call(e.target);
       }
@@ -142,10 +130,10 @@ export default class Overlay {
     if (!json) return false;
 
     let images = [];
-    for (let pk in json.images) {
-      let image = createImage(pk, json.images[pk]);
-      gallery.append(image);
-      images.push(image);
+    for (let image of json.images) {
+      let $image = createImage(image.pk, image.url);
+      gallery.append($image);
+      images.push($image);
     }
 
     Promise.all(images.map(createImagePromise)).then(responses => {
@@ -203,4 +191,30 @@ export default class Overlay {
       }
     };
   }
+}
+
+function insertImage(e) {
+  let textarea = this.currentCaller.closest('.freditor').querySelector('.main_body');
+  let imgWrapper = e.target.closest('.img_wrapper');
+  let additions = Additions.additionsMap.get(this.currentCaller.closest('.freditor').querySelector('.additions'));
+
+  let { selectionStart: sS, selectionEnd: sE } = textarea;
+
+  additions.appendTo('images', {
+    pk: imgWrapper.dataset.pk,
+    url: imgWrapper.dataset.url,
+  }, index => {
+    let imageLink = `[img=${index}]`;
+
+    textarea.setRangeText(imageLink, sS, sE);
+    textarea.selectionStart += imageLink.length;
+    textarea.selectionEnd = textarea.selectionStart;
+  });
+
+  let message = new Message();
+  message.success = true;
+  message.textContent = 'Зображення було додано';
+  Message.append(message);
+
+  textarea.focus();
 }
