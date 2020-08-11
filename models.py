@@ -55,10 +55,10 @@ class Image(models.Model):
   def get_url(self):
     if self.image and default_storage.exists(self.image.name):
       return self.image.url
-    return self.default_image
+    return Image.get_default_image()
 
-  @property
-  def default_image(self):
+  @staticmethod
+  def get_default_image(self):
     return settings.STATIC_URL + 'img/default_image.png'
 
 

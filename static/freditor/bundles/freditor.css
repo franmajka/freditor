@@ -150,11 +150,18 @@
     .freditor .main_body:focus {
       border-color: #85b7d9; }
   .freditor .additions {
-    border: 1px solid #aac532;
+    border: 1px solid #ccc;
     border-radius: 4px; }
+  .freditor .additions_title {
+    padding: 0;
+    font-size: 0.9em; }
   .freditor .additions_list {
     margin: 0;
-    padding-left: 1em; }
+    padding-left: .5em; }
+  .freditor .additions_item {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; }
 
 .tooltip {
   position: absolute;

@@ -73,7 +73,12 @@ export default class Additions {
 
   /** Method that triggers when the form is submited */
   submit() {
-    this.$textarea.value += `\n\n#--ADDITIONS--#\n${this.$element.innerText}`;
+    this.updateInnerHTML()
+    
+    let additionsString = {};
+    for (let key in this.extensions) additionsString[key] = this.extensions[key].list;
+    additionsString = JSON.stringify(additionsString);
+    this.$textarea.value += `[[ADDITIONS]]${additionsString}`;
   }
 
   /**
