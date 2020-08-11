@@ -13,7 +13,7 @@ from django.core.exceptions import ValidationError
 
 from .widgets import DragAndDropWidget
 from .models import Image, File
-from .fields import FrEditorField
+from .fields import FrEditorField, FrEditor
 
 
 class FrEditorAdmin(admin.ModelAdmin):
@@ -36,8 +36,8 @@ class FrEditorAdmin(admin.ModelAdmin):
         context[field.name] = request.POST.get(field.name, '')
         continue
       content = request.POST.get(field.name, '')
-      content = field.get_html(content)
-      context.update({field.name: content})
+      content = FrEditor(content, field.allowed_btns, field.allowed_features)
+      context.update({field.name: content.html})
     return render(request, self.model._meta.template, context)
 
 

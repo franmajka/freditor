@@ -146,12 +146,21 @@ $btn_transition: all .2s;
 		}
 	}
 	.additions{
-		border: 1px solid #aac532;
+		border: 1px solid #ccc;
 		border-radius: 4px;
+	}
+	.additions_title{
+		padding: 0;
+		font-size: 0.9em;
 	}
 	.additions_list{
 		margin: 0;
-		padding-left: 1em;
+		padding-left: .5em;
+	}
+	.additions_item{
+		text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 	}
 }
 

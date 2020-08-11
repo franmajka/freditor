@@ -30,10 +30,10 @@ function btnClickHandler() {
       if (btn.classList.contains('active') || btn == this) {
         btn.classList.toggle('active');
 
-        let add_form = btn.closest('.controls_btns').querySelector(`.add_${btn.dataset.btn}`);
-        add_form.classList.toggle('hidden');
+        let addForm = btn.closest('.controls_btns').querySelector(`.add_${btn.dataset.btn}`);
+        addForm.classList.toggle('hidden');
 
-        let input = add_form.querySelector('.link_value');
+        let input = addForm.querySelector('.link_value');
         input.value = '';
 
         if (btn == this) input.focus();
@@ -112,20 +112,6 @@ function getGallery() {
   window.overlay.open(this);
 }
 
-function previewHandler() {
-  let form = document.querySelector('form');
-
-  let original_target = form.target;
-  let original_action = form.action;
-
-  form.target = '_blank';
-  form.action = this.dataset.url;
-  form.submit();
-
-  form.target = original_target;
-  form.action = original_action;
-}
-
 /**
  * Handles user's clicks
  * @param {MouseEvent} e
@@ -145,12 +131,6 @@ function clickEventHadler(e) {
   if (e.target.dataset.get === 'gallery') {
     e.preventDefault();
     getGallery.call(e.target);
-    return;
-  }
-
-  if (e.target.dataset.preview === 'true') {
-    e.preventDefault();
-    previewHandler.call(e.target);
     return;
   }
 }
@@ -335,6 +315,39 @@ function inputEventHandler(e) {
   }
 }
 
+
+function previewHandler(form) {
+  let originalTarget = form.target;
+  let originalAction = form.action;
+
+  form.target = '_blank';
+  form.action = this.dataset.url;
+  form.submit();
+
+  form.target = originalTarget;
+  form.action = originalAction;
+}
+
+/**
+ * Handles submit event
+ * @param {SubmitEvent} e
+ */
+function submitEventHandler(e) {
+  let originalValues = new Map;
+  for (let additionsElement of e.target.querySelectorAll('[data-additions]')) {
+    let additions = Additions.additionsMap.get(additionsElement);
+    originalValues.set(additions.$textarea, additions.$textarea.value);
+    additions.submit();
+  }
+
+  if (e.submitter.dataset.preview === 'true') {
+    e.preventDefault();
+    previewHandler.call(e.submitter, e.target);
+    for (let [textarea, originalValue] of originalValues) textarea.value = originalValue;
+    return;
+  }
+}
+
 window.addEventListener('load', () => {
   document.addEventListener('click', clickEventHadler);
   document.addEventListener('keydown', keydownEventHandler);
@@ -342,8 +355,10 @@ window.addEventListener('load', () => {
   document.addEventListener('mouseout', mouseoutEventHandler);
   document.addEventListener('change', changeEventHandler);
   document.addEventListener('input', inputEventHandler);
+  document.addEventListener('submit', submitEventHandler);
 
   document.querySelectorAll('[data-textarea]').forEach(textarea => textareaAutoResize.call(textarea));
+  document.querySelectorAll('[data-additions]').forEach(additions => new Additions(additions));
 
-  window.a = new Additions(document.querySelector('.additions'));
+  window.a = Additions;
 });

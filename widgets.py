@@ -1,3 +1,4 @@
+import json
 from django import forms
 from django.utils.safestring import mark_safe
 from django.template import loader
@@ -17,9 +18,10 @@ class FrEditorWidget(forms.Widget):
       default_attrs.update(attrs)
     super().__init__(default_attrs)
 
-
-  def render(self, name, value, attrs=None, renderer=None):
-    context = self.get_context(name, value, attrs)
+  def render(self, name, value, attrs = None, renderer = None):
+    context = self.get_context(name, value.text if value is not None else value, attrs)
+    if value is not None:
+      context['widget']['additions'] = json.dumps(value.additions)
     template = loader.get_template(self.template_name).render(context)
     return mark_safe(template)
 
