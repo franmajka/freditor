@@ -6,6 +6,9 @@ import resizeGallery from './resize-gallery';
 import deleteImage from './delete-image';
 import createImage from './create-image';
 
+import DOCUMENTATION from './documentation';
+import PRELOADER from './preloader-html';
+
 const OVERLAY_CHILDREN = {
   gallery: {
     id: 'gallery_wrapper',
@@ -20,13 +23,7 @@ const OVERLAY_CHILDREN = {
   preloader: {
     id: 'preloader',
     html() {
-      return `
-        <div id='preloader'>
-          <div class='outer_circle'></div>
-          <div class='outer_circle_shadow'></div>
-          <div class='inner_circle'></div>
-        </div>
-      `;
+      return PRELOADER;
     }
   },
   documentation: {
@@ -91,7 +88,7 @@ export default class Overlay {
   open(caller) {
     this.currentCaller = caller;
 
-    switch (this.currentCaller.dataset.get) {
+    switch (this.currentCaller.dataset.getOverlay) {
       case 'gallery': {
         let gallerWrapper = this.children.gallery;
         if (gallerWrapper) {
@@ -102,10 +99,20 @@ export default class Overlay {
         if (!this.setupGallery(this.currentCaller.dataset)) return;
         break;
       }
+      case 'documentation': {
+        let documentation = this.children.documentation;
+        if (documentation) {
+          documentation.style.display = '';
+          break;
+        }
+
+        this.setupDocumentation(this.currentCaller.dataset);
+        break;
+      }
     }
 
     this.$element.style.display = '';
-    this.$element.style.opacity = 1;
+    setTimeout(() => this.$element.style.opacity = 1, 0);
   }
 
   /**
@@ -153,11 +160,11 @@ export default class Overlay {
         if (!i.loaded) {
           i.img.parentElement.remove();
           console.log(`
-              ${i.img.src}
-              'Картинка отсутствует,
-              ${defaultImage}
-              defaultImage указан не верно
-            `);
+            ${i.img.src}
+            'Картинка отсутствует,
+            ${defaultImage}
+            defaultImage указан не верно
+          `);
         }
       });
     });
@@ -175,6 +182,46 @@ export default class Overlay {
     window.addEventListener('resize', () => {
       if (this.children.gallery) resizeGallery();
     });
+
+    return true;
+  }
+
+  setupDocumentation(dataset) {
+    let overlayWindow = this.$element.querySelector('.overlay_window');
+
+    overlayWindow.insertAdjacentHTML('afterbegin', OVERLAY_CHILDREN.documentation.html());
+    let documentation = overlayWindow.querySelector(`#${OVERLAY_CHILDREN.documentation.id}`);
+    this.children.documentation = documentation;
+
+    let allowed = JSON.parse(dataset.allowed);
+
+    let texIndex = allowed.indexOf('tex');
+    if (~texIndex) allowed.splice(texIndex, 1);
+
+    if (!allowed.length && ~texIndex) {
+      documentation.textContent = 'Звичайний текст...';
+      return true;
+    }
+
+    let allowedHighlights = {};
+    for (let highlight of ['bold', 'italic', 'strike']) {
+      let index = allowed.indexOf(highlight);
+      if (~index) {
+        allowedHighlights[allowed[index]] = true;
+        allowed.splice(index, 1);
+      }
+    }
+    documentation.insertAdjacentHTML('beforeend', DOCUMENTATION.highlight(allowedHighlights));
+
+    for (let allowance of allowed) {
+      documentation.insertAdjacentHTML('beforeend', DOCUMENTATION[allowance] || '');
+    }
+
+    if (~texIndex) {
+      DOCUMENTATION.tex().then(
+        html => documentation.insertAdjacentHTML('beforeend', html)
+      );
+    }
 
     return true;
   }

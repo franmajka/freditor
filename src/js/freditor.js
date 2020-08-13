@@ -5,6 +5,7 @@ import Overlay from './Overlay';
 import createImage from './create-image';
 import baseRequest from './base-request';
 import Additions from './Additions';
+import PRELOADER from './preloader-html';
 
 import '../css/freditor.scss';
 import '../css/gallery.scss';
@@ -104,7 +105,7 @@ function submitLinkHandler() {
   textarea.focus();
 }
 
-function getGallery() {
+function getOverlay() {
   if (!window.overlay) {
     window.overlay = new Overlay();
   }
@@ -128,9 +129,9 @@ function clickEventHadler(e) {
     return;
   }
 
-  if (e.target.dataset.get === 'gallery') {
+  if (e.target.dataset.getOverlay) {
     e.preventDefault();
-    getGallery.call(e.target);
+    getOverlay.call(e.target);
     return;
   }
 }
@@ -301,7 +302,7 @@ function textareaAutoResize() {
   if (this.dataset.hidden === 'true') return;
   this.parentElement.style.height = this.parentElement.offsetHeight + 'px';
   this.style.height = 0;
-  this.style.height = `${this.scrollHeight - parseInt(getComputedStyle(this).padding) * 2}px`;
+  this.style.height = `${this.scrollHeight}px`;
   this.parentElement.style.height = null;
 }
 
@@ -334,10 +335,11 @@ function previewHandler(form) {
  */
 function submitEventHandler(e) {
   let originalValues = new Map;
+  let valid = true;
   for (let additionsElement of e.target.querySelectorAll('[data-additions]')) {
     let additions = Additions.additionsMap.get(additionsElement);
     originalValues.set(additions.$textarea, additions.$textarea.value);
-    additions.submit();
+    valid = valid && (additions.submit() || !additions.$textarea.required);
   }
 
   if (e.submitter.dataset.preview === 'true') {
@@ -346,7 +348,17 @@ function submitEventHandler(e) {
     for (let [textarea, originalValue] of originalValues) textarea.value = originalValue;
     return;
   }
+
+  if (!valid) return;
+  
+  document.getElementById('container').classList.add('loading');
+  document.body.insertAdjacentHTML('beforeend', PRELOADER);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('container').classList.add('loading');
+  document.body.insertAdjacentHTML('beforeend', PRELOADER);
+});
 
 window.addEventListener('load', () => {
   document.addEventListener('click', clickEventHadler);
@@ -360,5 +372,12 @@ window.addEventListener('load', () => {
   document.querySelectorAll('[data-textarea]').forEach(textarea => textareaAutoResize.call(textarea));
   document.querySelectorAll('[data-additions]').forEach(additions => new Additions(additions));
 
-  window.a = Additions;
+  let preloader = document.getElementById('preloader');
+  if (preloader) {
+    preloader.classList.add('loaded_hiding');
+    setTimeout(() => {
+      document.getElementById('container').classList.remove('loading');
+      preloader.remove();
+    }, 200);
+  }
 });

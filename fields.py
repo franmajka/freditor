@@ -8,16 +8,16 @@ from .forms import FrEditorFormField
 from .models import Image, File
 
 BTNS = {
-    'subtitle':   {'description': 'Підзаголовок', 'tag': 'h2'},
-    'paragraph':  {'description': 'Параграф',     'tag': 'p'},
-    'bold':       {'description': 'Жирний',       'tag': 'b'},
-    'italic':     {'description': 'Курсив',       'tag': 'i'},
-    'strike':     {'description': 'Закреслений',  'tag': 's'},
-    'supscript':  {'description': 'Надрядковий',  'tag': 'sup'},
-    'subscript':  {'description': 'Підрядковий',  'tag': 'sub'},
-    'link':       {'description': 'Посилання',    'tag': 'link'},
-    'image':      {'description': 'Зображення',   'tag': 'img'},
-    'file':       {'description': 'Файл',         'tag': 'file'}
+  'subtitle':   {'description': 'Підзаголовок', 'tag': 'h2'},
+  'paragraph':  {'description': 'Параграф',     'tag': 'p'},
+  'bold':       {'description': 'Жирний',       'tag': 'b'},
+  'italic':     {'description': 'Курсив',       'tag': 'i'},
+  'strike':     {'description': 'Закреслений',  'tag': 's'},
+  'supscript':  {'description': 'Надрядковий',  'tag': 'sup'},
+  'subscript':  {'description': 'Підрядковий',  'tag': 'sub'},
+  'link':       {'description': 'Посилання',    'tag': 'link'},
+  'image':      {'description': 'Зображення',   'tag': 'img'},
+  'file':       {'description': 'Файл',         'tag': 'file'}
 }
 
 FEATURES = ['iframe', 'tex']
@@ -103,16 +103,16 @@ class FrEditor(object):
         try:
           pk = list_safe_get(self.additions['files'], int(file.group('index')) - 1, '#').get('pk', None)
           model = File.objects.get(pk = pk)
-          url = model.file.url or '#'
-          if(url):
-            html = html.replace(file.group(0), f'<a href="{url}" class="{FrEditor.get_extension(url)}">{file.group("text")}</a>')
+          url, name = (model.file.url or '#', model.filename or False)
+          if(name):
+            html = html.replace(file.group(0), f'<a href="{url}" download="{name}" class="{FrEditor.get_extension(url)}">{file.group("text")}</a>')
           else:
             raise(File.DoesNotExist)
         except File.DoesNotExist:
           html = html.replace(file.group(0), f'<a href="#">{file.group("text")}</a>')
 
     if 'iframe' in allowed_features:
-      pattern = re.compile(r'&lt;iframe(.*?)&gt;(.*?)&lt;\/iframe&gt;', flags=re.DOTALL)
+      pattern = re.compile(r'&lt;iframe(.*?)&gt;(?:(.*?)&lt;\/iframe&gt;)?', flags=re.DOTALL)
       for iframe in pattern.finditer(html):
         iframe_attrs = iframe.group(1).replace('&quot;', '"').replace('&#x27;', "'")
         html = html.replace(iframe.group(0), '<iframe{0}>{1}</iframe>'.format(iframe_attrs, iframe.group(2)))
@@ -133,9 +133,13 @@ class FrEditor(object):
 class FrEditorField(models.TextField):
   def __init__(self, *args, **kwargs):
     btns = kwargs.pop('allowed_btns', [])
-    self.allowed_btns = BTNS.keys() if btns == '__all__' else btns
+    self.allowed_btns = list(BTNS.keys()) if btns == '__all__' else btns
     features = kwargs.pop('allowed_features', [])
     self.allowed_features = FEATURES if features == '__all__' else features
+
+    if not kwargs.get('help_text', False):
+      kwargs['help_text'] = f'<span data-get-overlay="documentation" data-allowed=\'{json.dumps(self.allowed_btns + self.allowed_features)}\'>Як цим користуватись?</span>'
+
     super().__init__(*args, **kwargs)
 
   def deconstruct(self):

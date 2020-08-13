@@ -44,16 +44,24 @@ export default class Additions {
 
   /** If json given make additions from it and then show them */
   _setup() {
-    if (!this.$element.textContent.trim()) {
+    let inValue = this.$textarea.value.includes('[[ADDITIONS]]');
+    let additionsTextContent = this.$element.textContent.trim();
+    if (!additionsTextContent && !inValue) {
       this.hidden = true;
       return;
     }
     try {
-      let json = JSON.parse(this.$element.textContent);
-      if (json) {
-        for (let key in this.extensions) {
-          this.extensions[key].list = json[key];
-        }
+      let json;
+      if (!additionsTextContent) {
+        if (!inValue) throw new SyntaxError;
+        let [value, additions] = this.$textarea.value.split('[[ADDITIONS]]');
+        this.$textarea.value = value;
+        json = JSON.parse(additions);
+      } else {
+        json = JSON.parse(additionsTextContent);
+      }
+      for (let key in this.extensions) {
+        this.extensions[key].list = json[key];
       }
     } catch (err) {
       if (!(err instanceof SyntaxError)) throw err;
@@ -74,11 +82,14 @@ export default class Additions {
   /** Method that triggers when the form is submited */
   submit() {
     this.updateInnerHTML()
-    
+    if (!this.$textarea.value) return false;
+
     let additionsString = {};
     for (let key in this.extensions) additionsString[key] = this.extensions[key].list;
     additionsString = JSON.stringify(additionsString);
     this.$textarea.value += `[[ADDITIONS]]${additionsString}`;
+
+    return true;
   }
 
   /**

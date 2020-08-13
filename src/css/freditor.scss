@@ -6,6 +6,16 @@ $btn_transition: all .2s;
 	display: none!important;
 }
 
+.loading{
+	opacity: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.katex {
+	user-select: none;
+}
+
 .freditor{
 	display: inline-block;
 	width: min-content;
@@ -126,11 +136,12 @@ $btn_transition: all .2s;
 		}
 	}
 	.main_body, .additions{
-		padding: 1em;
 		margin-top: .5em;
 		width: 50em;
+		box-sizing: border-box;
 	}
 	.main_body{
+		padding: 1em;
 		margin-top: .5em;
 		overflow: hidden;
 		outline: none;
@@ -148,10 +159,11 @@ $btn_transition: all .2s;
 	.additions{
 		border: 1px solid #ccc;
 		border-radius: 4px;
+		padding: 0 1em 1em 1em;
 	}
 	.additions_title{
 		padding: 0;
-		font-size: 0.9em;
+		font-size: 1.1em;
 	}
 	.additions_list{
 		margin: 0;
@@ -160,7 +172,21 @@ $btn_transition: all .2s;
 	.additions_item{
 		text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;
+		white-space: nowrap;
+		font-size: 1em;
+	}
+	& + .help{
+		padding-top: 1em!important;
+		span[data-get-overlay="documentation"]{
+			color: #447e9b;
+			font-size: 1em;
+			border-bottom: 1px dashed;
+			transition: color .2s;
+			cursor: pointer;
+			&:hover{
+				color: #036;
+			}
+		}
 	}
 }
 
@@ -341,7 +367,7 @@ $arrow_size: 10px;
 		height: 80vh;
 		position: relative;
 		box-sizing: border-box;
-		#gallery_wrapper{
+		& > div:not(#preloader){
 			width: 100%;
 			height: 100%;
 			padding: 1em 3em;
@@ -376,6 +402,13 @@ $arrow_size: 10px;
 		font-size: 12px;
 	}
 }
+@media (max-width: 849px){
+	form .aligned .form-row .freditor + div.help{
+		width: 100%;
+    margin: 5px 0 0;
+    padding: 0;
+	}
+}
 @media (max-width: 768px){
 	.freditor .add_image{
 		flex-wrap: wrap;
@@ -387,29 +420,33 @@ $arrow_size: 10px;
 	}
 }
 @media (max-width: 630px){
-	.main_body, .additions{
-		width: 40em;
+	.freditor{
+		.main_body, .additions{
+			width: 40em;
+		}
 	}
 }
 @media (max-width: 520px){
 	.freditor{
 		font-size: 10px;
-	}
-	.freditor .add_image{
-		.load_image{
-			margin-top: .5em;
-			margin-left: 0;
+		.main_body, .additions{
+			width: 30em;
 		}
-		.get_gallery{
-			margin-left: .5em;
+		.add_image{
+			.load_image{
+				margin-top: .5em;
+				margin-left: 0;
+			}
+			.get_gallery{
+				margin-left: .5em;
+			}
 		}
-	}
-	.main_body, .additions{
-		width: 30em;
 	}
 }
 @media (max-width: 330px){
-	.main_body, .additions{
-		width: 100%;
+	.freditor{
+		.main_body, .additions{
+			width: 100%;
+		}
 	}
 }
