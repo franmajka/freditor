@@ -25,7 +25,7 @@
 						<input type="file" id='image_load' accept="image/*" data-url='{% url "admin:add_image" %}' data-load='image'>
 						<label for="image_load">Завантажити зображення</label>
 					</div>
-					<button class="get_gallery" data-get='gallery' data-name='{{ widget.name }}' data-get-url='{% url "admin:get_images" %}' data-url-delete='{% url "admin:delete_image"%}'>Вибрати з галереї</button>
+					<button class="get_gallery" data-get-overlay='gallery' data-name='{{ widget.name }}' data-get-url='{% url "admin:get_images" %}' data-url-delete='{% url "admin:delete_image"%}'>Вибрати з галереї</button>
 				</div>
 			{% endif %}
 		</div>
@@ -35,4 +35,5 @@
 		{% if widget.additions %}
 			{{widget.additions}}
 		{% endif %}
+	</div>
 </div>

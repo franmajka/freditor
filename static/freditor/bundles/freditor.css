@@ -37,6 +37,14 @@
 [data-hidden='true'] {
   display: none !important; }
 
+.loading {
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none; }
+
+.katex {
+  user-select: none; }
+
 .freditor {
   display: inline-block;
   width: min-content; }
@@ -133,10 +141,11 @@
         background-color: #bbb;
         color: #131313; }
   .freditor .main_body, .freditor .additions {
-    padding: 1em;
     margin-top: .5em;
-    width: 50em; }
+    width: 50em;
+    box-sizing: border-box; }
   .freditor .main_body {
+    padding: 1em;
     margin-top: .5em;
     overflow: hidden;
     outline: none;
@@ -151,17 +160,29 @@
       border-color: #85b7d9; }
   .freditor .additions {
     border: 1px solid #ccc;
-    border-radius: 4px; }
+    border-radius: 4px;
+    padding: 0 1em 1em 1em; }
   .freditor .additions_title {
     padding: 0;
-    font-size: 0.9em; }
+    font-size: 1.1em; }
   .freditor .additions_list {
     margin: 0;
     padding-left: .5em; }
   .freditor .additions_item {
     text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap; }
+    white-space: nowrap;
+    font-size: 1em; }
+  .freditor + .help {
+    padding-top: 1em !important; }
+    .freditor + .help span[data-get-overlay="documentation"] {
+      color: #447e9b;
+      font-size: 1em;
+      border-bottom: 1px dashed;
+      transition: color .2s;
+      cursor: pointer; }
+      .freditor + .help span[data-get-overlay="documentation"]:hover {
+        color: #036; }
 
 .tooltip {
   position: absolute;
@@ -320,14 +341,14 @@
     height: 80vh;
     position: relative;
     box-sizing: border-box; }
-    #overlay .overlay_window #gallery_wrapper {
+    #overlay .overlay_window > div:not(#preloader) {
       width: 100%;
       height: 100%;
       padding: 1em 3em;
       overflow-y: scroll;
       box-sizing: border-box;
       scrollbar-width: none; }
-      #overlay .overlay_window #gallery_wrapper::-webkit-scrollbar {
+      #overlay .overlay_window > div:not(#preloader)::-webkit-scrollbar {
         width: 0; }
   #overlay .preloader {
     position: absolute; }
@@ -347,6 +368,12 @@
   .freditor {
     font-size: 12px; } }
 
+@media (max-width: 849px) {
+  form .aligned .form-row .freditor + div.help {
+    width: 100%;
+    margin: 5px 0 0;
+    padding: 0; } }
+
 @media (max-width: 768px) {
   .freditor .add_image {
     flex-wrap: wrap;
@@ -356,22 +383,22 @@
       margin-left: 0; } }
 
 @media (max-width: 630px) {
-  .main_body, .additions {
+  .freditor .main_body, .freditor .additions {
     width: 40em; } }
 
 @media (max-width: 520px) {
   .freditor {
     font-size: 10px; }
-  .freditor .add_image .load_image {
-    margin-top: .5em;
-    margin-left: 0; }
-  .freditor .add_image .get_gallery {
-    margin-left: .5em; }
-  .main_body, .additions {
-    width: 30em; } }
+    .freditor .main_body, .freditor .additions {
+      width: 30em; }
+    .freditor .add_image .load_image {
+      margin-top: .5em;
+      margin-left: 0; }
+    .freditor .add_image .get_gallery {
+      margin-left: .5em; } }
 
 @media (max-width: 330px) {
-  .main_body, .additions {
+  .freditor .main_body, .freditor .additions {
     width: 100%; } }
 
 .grab {
@@ -536,12 +563,12 @@ html {
     animation: rotate_circle 3s infinite ease-in-out reverse; }
   #preloader .outer_circle {
     position: absolute;
-    left: -0.125vw;
-    top: -0.125vw;
-    right: -0.125vw;
-    bottom: -0.125vw;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     z-index: 100;
-    border: 0.7vw solid #53a3e7;
+    border: 0.6vw solid #53a3e7;
     border-left-color: transparent;
     border-right-color: transparent;
     animation: rotate_circle 3s infinite ease-in-out; }
