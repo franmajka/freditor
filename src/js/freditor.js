@@ -2,14 +2,13 @@
 
 import Message from './Message';
 import Overlay from './Overlay';
+import Additions from './Additions';
+import Preloader from './Preloader';
 import createImage from './create-image';
 import baseRequest from './base-request';
-import Additions from './Additions';
-import PRELOADER from './preloader-html';
 
 import '../css/freditor.scss';
 import '../css/gallery.scss';
-import '../css/preloader.scss';
 // eslint-disable-next-line no-unused-vars
 const images = require.context('../img', true, /(?<!default_image)\.png$/);
 
@@ -350,14 +349,18 @@ function submitEventHandler(e) {
   }
 
   if (!valid) return;
-  
-  document.getElementById('container').classList.add('loading');
-  document.body.insertAdjacentHTML('beforeend', PRELOADER);
+
+  new Preloader(
+    document.getElementById('container'),
+    document.body,
+  );
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('container').classList.add('loading');
-  document.body.insertAdjacentHTML('beforeend', PRELOADER);
+  window.preloader = new Preloader(
+    document.getElementById('container'),
+    document.body,
+  );
 });
 
 window.addEventListener('load', () => {
@@ -372,12 +375,5 @@ window.addEventListener('load', () => {
   document.querySelectorAll('[data-textarea]').forEach(textarea => textareaAutoResize.call(textarea));
   document.querySelectorAll('[data-additions]').forEach(additions => new Additions(additions));
 
-  let preloader = document.getElementById('preloader');
-  if (preloader) {
-    preloader.classList.add('loaded_hiding');
-    setTimeout(() => {
-      document.getElementById('container').classList.remove('loading');
-      preloader.remove();
-    }, 200);
-  }
+  window.preloader.remove();
 });

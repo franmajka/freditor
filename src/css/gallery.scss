@@ -10,12 +10,6 @@ html{
 	width: 100%;
 	column-gap: 15px;
 	column-fill: auto;
-	opacity: 0;
-	overflow: hidden;
-}
-#gallery.loaded{
-	opacity: 1;
-	overflow: auto;
 }
 .img{
 	display: block;

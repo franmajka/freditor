@@ -1,13 +1,13 @@
 import defaultImage from '../img/default_image.png';
 import Message from './Message';
 import Additions from './Additions';
+import Preloader from './Preloader';
 import baseRequest from './base-request';
 import resizeGallery from './resize-gallery';
 import deleteImage from './delete-image';
 import createImage from './create-image';
 
 import DOCUMENTATION from './documentation';
-import PRELOADER from './preloader-html';
 
 const OVERLAY_CHILDREN = {
   gallery: {
@@ -18,12 +18,6 @@ const OVERLAY_CHILDREN = {
           <div id='gallery' data-url-delete=${urlDelete}></div>
         </div>
       `;
-    }
-  },
-  preloader: {
-    id: 'preloader',
-    html() {
-      return PRELOADER;
     }
   },
   documentation: {
@@ -128,9 +122,7 @@ export default class Overlay {
     let gallery = gallerWrapper.firstElementChild;
     this.children.gallery = gallerWrapper;
 
-    overlayWindow.insertAdjacentHTML('afterbegin', OVERLAY_CHILDREN.preloader.html());
-    let preloader = overlayWindow.querySelector(`#${OVERLAY_CHILDREN.preloader.id}`);
-    this.children.preloader = preloader;
+    let preloader = new Preloader(gallerWrapper, overlayWindow);
 
     let json = await baseRequest({url: dataset.getUrl});
 
@@ -170,14 +162,8 @@ export default class Overlay {
     });
 
     resizeGallery();
-    if (preloader) {
-      preloader.classList.add('loaded_hiding');
-      setTimeout(() => {
-        gallery.classList.add('loaded');
-        preloader.remove();
-        delete this.children.preloader;
-      }, 200);
-    }
+
+    preloader.remove();
 
     window.addEventListener('resize', () => {
       if (this.children.gallery) resizeGallery();

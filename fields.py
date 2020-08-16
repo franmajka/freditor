@@ -42,8 +42,12 @@ class FrEditor(object):
   def from_raw(self, raw_str, allowed_btns, allowed_features):
     if ('[[ADDITIONS]]' in raw_str):
       raw_str = raw_str.split('[[ADDITIONS]]')
-      self.additions = json.loads(raw_str.pop())
-      self.text = '[[ADDITIONS]]'.join(raw_str)
+      try:
+        self.additions = json.loads(raw_str.pop())
+        self.text = '[[ADDITIONS]]'.join(raw_str)
+      except json.JSONDecodeError:
+        self.additions = ''
+        self.text = '[[ADDITIONS]]'.join(raw_str[:-1])
     else:
       self.text = raw_str
       self.additions = None
@@ -152,7 +156,15 @@ class FrEditorField(models.TextField):
   # Где-то тут нужно переводить словарь в строку для человеческого отображения в админке
   def from_db_value(self, value, expression, connection):
     ctx = {'raw': False}
-    ctx.update(json.loads(value))
+    try:
+      ctx.update(json.loads(value))
+
+    except json.JSONDecodeError:
+      ctx.update({
+        'text': '',
+        'additions': '',
+        'html': ''
+      })
     return FrEditor(**ctx)
 
   # Делаем словарь текст + доп.

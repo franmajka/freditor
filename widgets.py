@@ -20,8 +20,11 @@ class FrEditorWidget(forms.Widget):
 
   def render(self, name, value, attrs = None, renderer = None):
     context = self.get_context(name, value.text if (value is not None and value != '') else value, attrs)
-    if (value is not None and value != ''):
-      context['widget']['additions'] = json.dumps(value.additions)
+    if (value is not None and value != '' and value.additions):
+      try:
+        context['widget']['additions'] = json.dumps(value.additions)
+      except json.JSONDecodeError:
+        pass
     template = loader.get_template(self.template_name).render(context)
     return mark_safe(template)
 
