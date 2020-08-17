@@ -1,16 +1,27 @@
 import Message from './Message';
 
 export default async function baseRequest({url = '', method = 'GET', headers = {}, body = null} = {}) {
-  let response = await fetch(
-    url,
-    {
-      method,
-      headers: Object.assign({
-        'X-Requested-With': 'XMLHttpRequest',
-      }, headers),
-      body
-    }
-  );
+  let response;
+  try {
+    response = await fetch(
+      url,
+      {
+        method,
+        headers: Object.assign({
+          'X-Requested-With': 'XMLHttpRequest',
+        }, headers),
+        body
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    if (err instanceof TypeError) {
+      response = {
+        ok: false,
+        status: 0
+      };
+    } else throw err;
+  }
 
   if (!response.ok) {
     let message = new Message;

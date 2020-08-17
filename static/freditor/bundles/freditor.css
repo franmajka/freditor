@@ -13,9 +13,9 @@
   width: 10vw;
   height: 10vw;
   transform: translate(-50%, -50%);
-  background-color: transparent; }
+  background-color: transparent;
+  transition: opacity .2s; }
   #preloader.loaded_hiding {
-    transition: all .2s;
     opacity: 0; }
   #preloader * {
     background-color: inherit;
@@ -587,3 +587,5 @@ html {
   .controls {
     display: grid; } }
 
+
+/*# sourceMappingURL=freditor.css.map*/

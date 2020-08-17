@@ -22,9 +22,10 @@ export default class Preloader {
 
   remove() {
     this.$element.classList.add('loaded_hiding');
-    setTimeout(() => {
+    this.$element.ontransitionend = () => {
+      this.$element.ontransitionend = null;
       this.$content.classList.remove('loading');
       this.$element.remove();
-    }, 200);
+    };
   }
 }

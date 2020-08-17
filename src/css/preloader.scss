@@ -21,8 +21,8 @@ $animation_duration: 3s;
   height: $size;
   transform: translate(-50%, -50%);
   background-color: transparent;
+  transition: opacity .2s;
   &.loaded_hiding{
-  	transition: all .2s;
   	opacity: 0;
   }
   *{

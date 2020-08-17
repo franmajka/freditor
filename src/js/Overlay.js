@@ -30,7 +30,9 @@ const OVERLAY_CHILDREN = {
   }
 };
 
-function createImagePromise(img) {
+function createImagePromise(imgWrapper) {
+  let img = imgWrapper.querySelector('img');
+
   return new Promise(resolve => {
     img.onload = () => resolve({ 'loaded': true });
     img.onerror = () => resolve({ 'loaded': false, 'img': img });
@@ -79,8 +81,11 @@ export default class Overlay {
    * Opens the overlay
    * @param {HTMLElement} caller Element that triggered the event
    */
-  open(caller) {
+  async open(caller) {
     this.currentCaller = caller;
+
+    this.$element.style.display = '';
+    setTimeout(() => this.$element.style.opacity = 1, 0);
 
     switch (this.currentCaller.dataset.getOverlay) {
       case 'gallery': {
@@ -90,7 +95,7 @@ export default class Overlay {
           break;
         }
 
-        if (!this.setupGallery(this.currentCaller.dataset)) return;
+        if (!(await this.setupGallery(this.currentCaller.dataset))) this.hide();
         break;
       }
       case 'documentation': {
@@ -104,9 +109,6 @@ export default class Overlay {
         break;
       }
     }
-
-    this.$element.style.display = '';
-    setTimeout(() => this.$element.style.opacity = 1, 0);
   }
 
   /**
@@ -126,7 +128,10 @@ export default class Overlay {
 
     let json = await baseRequest({url: dataset.getUrl});
 
-    if (!json) return false;
+    if (!json) {
+      preloader.remove();
+      return false;
+    }
 
     let images = [];
     for (let image of json.images) {
@@ -135,31 +140,32 @@ export default class Overlay {
       images.push($image);
     }
 
-    Promise.all(images.map(createImagePromise)).then(responses => {
-      let rejected = [];
-      responses.forEach(i => {
-        if (!i.loaded) {
-          i.img.src = defaultImage;
-          i.img.parentElement.querySelector('.controls .insert_image').remove();
-          i.img.parentElement.querySelector('.controls .delete_image')
-            .innerText = 'Видалити шлях';
-          rejected.push(i.img);
-        }
-      });
-      return Promise.all(rejected.map(createImagePromise));
-    }).then(responses => {
-      responses.forEach(i => {
-        if (!i.loaded) {
-          i.img.parentElement.remove();
-          console.log(`
-            ${i.img.src}
-            'Картинка отсутствует,
-            ${defaultImage}
-            defaultImage указан не верно
-          `);
-        }
-      });
+    let responses = await Promise.all(images.map(createImagePromise));
+
+    let rejected = [];
+    responses.forEach(i => {
+      if (i.loaded) return;
+
+      i.img.src = defaultImage;
+      i.img.parentElement.querySelector('.controls .insert_image').remove();
+      i.img.parentElement.querySelector('.controls .delete_image').innerText = 'Видалити шлях';
+      rejected.push(i.img);
     });
+
+    if (rejected.length) {
+      responses = await Promise.all(rejected.map(createImagePromise));
+      responses.forEach(i => {
+        if (i.loaded) return;
+
+        i.img.parentElement.remove();
+        console.log(`
+          ${i.img.src}
+          'Картинка отсутствует,
+          ${defaultImage}
+          defaultImage указан не верно
+        `);
+      });
+    }
 
     resizeGallery();
 
@@ -168,6 +174,7 @@ export default class Overlay {
     window.addEventListener('resize', () => {
       if (this.children.gallery) resizeGallery();
     });
+
 
     return true;
   }
